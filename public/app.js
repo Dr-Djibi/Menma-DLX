@@ -64,3 +64,38 @@ function showError(msg) {
     errorMsg.textContent = '⚠️ ' + msg;
     errorMsg.classList.remove('hidden');
 }
+
+// ── PWA Install ──────────────────────────────────────────────
+let deferredPrompt = null;
+const installBanner = document.getElementById('installBanner');
+const installBtn    = document.getElementById('installBtn');
+const dismissBtn    = document.getElementById('dismissBtn');
+
+// Si déjà installé en mode standalone → on cache définitivement
+if (window.matchMedia('(display-mode: standalone)').matches) {
+    localStorage.setItem('pwa-installed', '1');
+}
+
+if (!localStorage.getItem('pwa-dismissed') && !localStorage.getItem('pwa-installed')) {
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBanner.classList.remove('hidden');
+    });
+}
+
+installBtn?.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+        localStorage.setItem('pwa-installed', '1');
+    }
+    deferredPrompt = null;
+    installBanner.classList.add('hidden');
+});
+
+dismissBtn?.addEventListener('click', () => {
+    installBanner.classList.add('hidden');
+    localStorage.setItem('pwa-dismissed', '1');
+});
