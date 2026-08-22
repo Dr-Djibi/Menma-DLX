@@ -3,17 +3,20 @@ import cors from 'cors';
 import ytdl from '@distube/ytdl-core';
 import btch from 'btch-downloader';
 import { snapsave } from 'snapsave-media-downloader';
-import axios from 'axios';
+import { createReadStream } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public')); // Serve the GUI files
 
 const PORT = process.env.PORT || 3000;
 
 /**
- * Fonction utilitaire pour détecter la plateforme
+ * Détection de la plateforme
  */
 function detectPlatform(url) {
     if (/youtube\.com|youtu\.be/.test(url)) return 'YouTube';
@@ -25,29 +28,22 @@ function detectPlatform(url) {
 }
 
 /**
- * Logique de téléchargement YouTube
+ * YouTube via @distube/ytdl-core
  */
 async function getYouTubeData(url) {
     const info = await ytdl.getInfo(url);
     const title = info.videoDetails.title;
-    
-    // Filtrer pour obtenir un format avec audio et vidéo (mp4)
     const format = ytdl.chooseFormat(info.formats, { quality: 'highest', filter: 'audioandvideo' });
-    
     if (!format || !format.url) throw new Error("Aucun format vidéo/audio combiné trouvé");
-    
     return { title, url: format.url, platform: 'YouTube' };
 }
 
 /**
- * Route Principale de téléchargement
+ * Route API principale
  */
 app.post('/api/download', async (req, res) => {
     const { url } = req.body;
-    
-    if (!url) {
-        return res.status(400).json({ error: "L'URL est requise" });
-    }
+    if (!url) return res.status(400).json({ success: false, error: "L'URL est requise" });
 
     try {
         const platform = detectPlatform(url);
@@ -57,65 +53,66 @@ app.post('/api/download', async (req, res) => {
             case 'YouTube':
                 result = await getYouTubeData(url);
                 break;
-            
+
             case 'Instagram':
             case 'Facebook':
             case 'Twitter':
             case 'TikTok':
-                // Utilisation de Snapsave (qui est très polyvalent pour IG, FB, TT)
                 try {
                     const snapRes = await snapsave(url);
                     if (snapRes.success && snapRes.data && snapRes.data.media) {
-                        const medias = snapRes.data.media;
-                        const videoMedia = medias.find(m => m.type === 'video') || medias[0];
+                        const videoMedia = snapRes.data.media.find(m => m.type === 'video') || snapRes.data.media[0];
                         result.url = videoMedia.url;
-                        
-                        // Pour Instagram, s'assurer que c'est une vidéo en faisant un HEAD si nécessaire
-                        // Mais l'API backend renvoie juste le lien pour que le bot s'en charge.
-                    } else {
-                        throw new Error("Snapsave a échoué");
-                    }
-                } catch (snapErr) {
-                    // Fallback sur BTCH Downloader
+                    } else throw new Error("Snapsave échoué");
+                } catch {
                     const btchRes = await btch.snapsave(url);
-                    if (btchRes && btchRes.result && btchRes.result.length > 0) {
-                        result.url = btchRes.result[0].url;
-                    } else {
-                        throw new Error("Impossible d'extraire la vidéo");
-                    }
+                    if (btchRes?.result?.length > 0) result.url = btchRes.result[0].url;
+                    else throw new Error("Impossible d'extraire la vidéo");
                 }
                 break;
 
             default:
-                return res.status(400).json({ error: "Plateforme non supportée" });
+                return res.status(400).json({ success: false, error: "Plateforme non supportée" });
         }
 
-        if (!result.url) {
-            return res.status(404).json({ error: "Lien direct introuvable pour cette vidéo" });
-        }
+        if (!result.url) return res.status(404).json({ success: false, error: "Lien direct introuvable" });
 
-        res.json({
-            success: true,
-            title: result.title,
-            download_url: result.url,
-            platform: result.platform
-        });
+        res.json({ success: true, title: result.title, download_url: result.url, platform: result.platform });
 
     } catch (error) {
-        console.error("Erreur téléchargement:", error.message);
-        res.status(500).json({ success: false, error: "Erreur lors de l'extraction de la vidéo: " + error.message });
+        console.error("[API Error]", error.message);
+        res.status(500).json({ success: false, error: "Erreur extraction: " + error.message });
     }
 });
 
-// Route de base de vérification de santé (requise par Render/Vercel)
-app.get('/', (req, res) => {
-    res.json({ status: "En ligne", message: "API de téléchargement vidéo prête", version: "1.0.0" });
-});
+/**
+ * Fichiers statiques (servis explicitement pour Vercel)
+ */
+const staticFiles = {
+    '/style.css': { path: 'public/style.css', mime: 'text/css' },
+    '/app.js': { path: 'public/app.js', mime: 'application/javascript' },
+    '/sw.js': { path: 'public/sw.js', mime: 'application/javascript' },
+    '/manifest.json': { path: 'public/manifest.json', mime: 'application/json' },
+};
 
-// Important pour Vercel : on exporte l'app au lieu d'utiliser app.listen en production serverless
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(PORT, () => {
-        console.log(`✅ Serveur Démarré. En écoute sur le port ${PORT}`);
+for (const [route, { path: filePath, mime }] of Object.entries(staticFiles)) {
+    app.get(route, (req, res) => {
+        res.setHeader('Content-Type', mime);
+        createReadStream(join(__dirname, filePath)).pipe(res);
     });
 }
+
+/**
+ * Interface HTML principale — doit être EN DERNIER
+ */
+app.get('/', (req, res) => {
+    res.setHeader('Content-Type', 'text/html');
+    createReadStream(join(__dirname, 'public/index.html')).pipe(res);
+});
+
+// Démarrage local uniquement (pas serverless Vercel)
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => console.log(`✅ Serveur sur http://localhost:${PORT}`));
+}
+
 export default app;

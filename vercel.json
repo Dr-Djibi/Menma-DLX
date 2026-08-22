@@ -8,28 +8,8 @@
     ],
     "routes": [
         {
-            "src": "/api/(.*)",
-            "dest": "/server.js"
-        },
-        {
-            "src": "/style.css",
-            "dest": "/public/style.css"
-        },
-        {
-            "src": "/app.js",
-            "dest": "/public/app.js"
-        },
-        {
-            "src": "/sw.js",
-            "dest": "/public/sw.js"
-        },
-        {
-            "src": "/manifest.json",
-            "dest": "/public/manifest.json"
-        },
-        {
             "src": "/(.*)",
-            "dest": "/public/index.html"
+            "dest": "/server.js"
         }
     ]
 }
