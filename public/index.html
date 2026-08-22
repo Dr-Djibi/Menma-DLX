@@ -4,56 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MENMA DLX</title>
-    <meta name="description" content="Téléchargeur Vidéo Universel">
+    <meta name="description" content="Téléchargeur Vidéo Universel — TikTok, YouTube, Instagram, Facebook, X">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#0d1117">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <!-- Background Elements -->
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
-    
+
     <main class="container glass">
         <header>
-            <div class="logo">
-                <h1>MENMA <span>DLX</span></h1>
-            </div>
-            <p>Le téléchargeur vidéo ultime (TikTok, YouTube, Insta, X, FB)</p>
+            <h1 class="logo">MENMA <span>DLX</span></h1>
+            <p class="subtitle">TikTok · YouTube · Instagram · Facebook · X</p>
         </header>
 
         <form id="downloadForm">
-            <div class="input-group">
-                <input type="url" id="urlInput" placeholder="Colle le lien de la vidéo ici..." required autocomplete="off">
+            <div class="input-wrap">
+                <input
+                    type="url"
+                    id="urlInput"
+                    placeholder="Colle le lien de la vidéo ici…"
+                    autocomplete="off"
+                    autocorrect="off"
+                    spellcheck="false"
+                    required
+                >
+                <button type="button" id="pasteBtn" title="Coller">📋</button>
             </div>
             <button type="submit" id="submitBtn">
-                <span class="btn-text">Télécharger</span>
+                <span class="btn-text">⬇️ Télécharger</span>
                 <span class="loader hidden"></span>
             </button>
         </form>
 
-        <div id="resultCard" class="result-card hidden glass-light">
-            <div class="platform-badge" id="platformBadge">TikTok</div>
-            <h3 id="videoTitle">Titre de la vidéo...</h3>
-            <a href="#" id="downloadLink" class="download-btn" target="_blank" download>
-                ⬇️ Enregistrer la vidéo
+        <div id="resultCard" class="result-card hidden">
+            <div class="platform-badge" id="platformBadge"></div>
+            <p id="videoTitle"></p>
+            <a id="downloadLink" href="#" class="download-btn" target="_blank" rel="noopener">
+                💾 Enregistrer la vidéo
             </a>
         </div>
-        
+
         <div id="errorMsg" class="error-msg hidden"></div>
+
+        <footer>
+            <p>Powered by MENMA · <span id="year"></span></p>
+        </footer>
     </main>
 
-    <script src="/app.js"></script>
+    <script src="/app.js" defer></script>
     <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').then(reg => {
-                    console.log('PWA Service Worker enregistré !', reg.scope);
-                }).catch(err => {
-                    console.log('Erreur SW:', err);
-                });
-            });
+            navigator.serviceWorker.register('/sw.js');
         }
     </script>
 </body>

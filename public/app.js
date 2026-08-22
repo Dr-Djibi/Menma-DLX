@@ -1,51 +1,66 @@
-document.getElementById('downloadForm').addEventListener('submit', async (e) => {
+// API endpoint — la fonction serverless Vercel est à /dlx
+const API_URL = '/dlx';
+
+const form = document.getElementById('downloadForm');
+const urlInput = document.getElementById('urlInput');
+const submitBtn = document.getElementById('submitBtn');
+const pasteBtn = document.getElementById('pasteBtn');
+const resultCard = document.getElementById('resultCard');
+const errorMsg = document.getElementById('errorMsg');
+const platformBadge = document.getElementById('platformBadge');
+const videoTitle = document.getElementById('videoTitle');
+const downloadLink = document.getElementById('downloadLink');
+
+// Bouton coller
+pasteBtn.addEventListener('click', async () => {
+    try {
+        const text = await navigator.clipboard.readText();
+        urlInput.value = text;
+        urlInput.focus();
+    } catch {
+        urlInput.focus();
+    }
+});
+
+// Formulaire
+form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
-    const urlInput = document.getElementById('urlInput');
-    const submitBtn = document.getElementById('submitBtn');
-    const btnText = submitBtn.querySelector('.btn-text');
-    const loader = submitBtn.querySelector('.loader');
-    const resultCard = document.getElementById('resultCard');
-    const errorMsg = document.getElementById('errorMsg');
-    
-    // UI states
-    errorMsg.classList.add('hidden');
+
+    // Reset UI
     resultCard.classList.add('hidden');
-    btnText.classList.add('hidden');
-    loader.classList.remove('hidden');
+    errorMsg.classList.add('hidden');
+    submitBtn.querySelector('.btn-text').classList.add('hidden');
+    submitBtn.querySelector('.loader').classList.remove('hidden');
     submitBtn.disabled = true;
 
     try {
-        const response = await fetch('/api/download', {
+        const res = await fetch(API_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url: urlInput.value.trim() })
         });
 
-        const data = await response.json();
+        const data = await res.json();
 
         if (data.success) {
-            document.getElementById('platformBadge').textContent = data.platform;
-            document.getElementById('videoTitle').textContent = data.title || "Vidéo prête !";
-            document.getElementById('downloadLink').href = data.download_url;
+            platformBadge.textContent = data.platform;
+            videoTitle.textContent = data.title || 'Vidéo prête !';
+            downloadLink.href = data.download_url;
             resultCard.classList.remove('hidden');
             urlInput.value = '';
         } else {
             showError(data.error || 'Erreur lors du téléchargement');
         }
     } catch (err) {
-        showError('Impossible de se connecter au serveur.');
+        showError('Impossible de contacter le serveur. Réessaie.');
     } finally {
-        btnText.classList.remove('hidden');
-        loader.classList.add('hidden');
+        submitBtn.querySelector('.btn-text').classList.remove('hidden');
+        submitBtn.querySelector('.loader').classList.add('hidden');
         submitBtn.disabled = false;
     }
 });
 
 function showError(msg) {
-    const errorMsg = document.getElementById('errorMsg');
-    errorMsg.textContent = msg;
+    errorMsg.textContent = '⚠️ ' + msg;
     errorMsg.classList.remove('hidden');
 }

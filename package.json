@@ -1,8 +1,7 @@
 {
   "name": "downloader-api",
   "version": "1.0.0",
-  "description": "API de téléchargement vidéo pour Render.com",
-  "main": "server.js",
+  "description": "MENMA DLX — API de téléchargement vidéo",
   "type": "module",
   "scripts": {
     "start": "node server.js",
