@@ -1,0 +1,19 @@
+{
+  "name": "downloader-api",
+  "version": "1.0.0",
+  "description": "API de téléchargement vidéo pour Render.com",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "@distube/ytdl-core": "^4.16.12",
+    "axios": "^1.19.0",
+    "btch-downloader": "^6.3.6",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "snapsave-media-downloader": "^2.4.1"
+  }
+}
