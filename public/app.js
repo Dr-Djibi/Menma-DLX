@@ -99,3 +99,21 @@ dismissBtn?.addEventListener('click', () => {
     installBanner.classList.add('hidden');
     localStorage.setItem('pwa-dismissed', '1');
 });
+
+// ── PWA Share Target ─────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const sharedText = params.get('text') || params.get('url') || params.get('title');
+    
+    if (sharedText) {
+        // Extraire l'URL si le texte partagé contient du texte supplémentaire
+        const urlMatch = sharedText.match(/https?:\/\/[^\s]+/);
+        if (urlMatch) {
+            urlInput.value = urlMatch[0];
+            // Nettoyer l'URL de la barre d'adresse sans recharger
+            window.history.replaceState({}, document.title, '/');
+            // Lancer le téléchargement automatiquement
+            setTimeout(() => { submitBtn.click(); }, 300);
+        }
+    }
+});
