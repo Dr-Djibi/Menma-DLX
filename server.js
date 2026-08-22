@@ -107,11 +107,15 @@ app.post('/api/download', async (req, res) => {
     }
 });
 
-// Route de vérification de santé pour Render
+// Route de base de vérification de santé (requise par Render/Vercel)
 app.get('/', (req, res) => {
-    res.json({ status: "API de téléchargement en ligne", version: "1.0.0" });
+    res.json({ status: "En ligne", message: "API de téléchargement vidéo prête", version: "1.0.0" });
 });
 
-app.listen(PORT, () => {
-    console.log(`Serveur en cours d'exécution sur le port ${PORT}`);
-});
+// Important pour Vercel : on exporte l'app au lieu d'utiliser app.listen en production serverless
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`✅ Serveur Démarré. En écoute sur le port ${PORT}`);
+    });
+}
+export default app;
