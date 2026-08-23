@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://menma-dlx.vercel.app/sitemap.xml
