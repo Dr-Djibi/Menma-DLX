@@ -8,12 +8,15 @@
     "display": "standalone",
     "orientation": "portrait",
     "background_color": "#0d1117",
-    "theme_color": "#0d1117",
+    "theme_color": "#6366f1",
     "dir": "ltr",
     "lang": "fr",
     "categories": ["utilities", "entertainment", "productivity"],
     "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
     "prefer_related_applications": false,
+    "scope_extensions": [
+        {"origin": "*.vercel.app"}
+    ],
     "icons": [
         {
             "src": "/icon-192.png",
@@ -61,18 +64,19 @@
     },
     "screenshots": [
         {
-            "src": "/icon-512.png",
-            "sizes": "512x512",
+            "src": "/screenshot-narrow.png",
+            "sizes": "1080x1920",
             "type": "image/png",
             "form_factor": "narrow",
-            "label": "Téléchargeur vidéo mobile"
+            "label": "MENMA DLX sur mobile"
         },
         {
-            "src": "/icon-512.png",
-            "sizes": "512x512",
+            "src": "/screenshot-wide.png",
+            "sizes": "1920x1080",
             "type": "image/png",
             "form_factor": "wide",
-            "label": "Téléchargeur vidéo PC"
+            "label": "MENMA DLX sur ordinateur"
         }
     ]
+
 }
