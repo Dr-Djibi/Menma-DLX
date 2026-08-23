@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MENMA DLX</title>
-    <meta name="description" content="Téléchargeur Vidéo Universel — TikTok, YouTube, Instagram, Facebook, X">
+    <meta name="description" content="Téléchargeur vidéo universel — TikTok, YouTube, Instagram, Facebook, X">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#0d1117">
     <meta name="mobile-web-app-capable" content="yes">
@@ -36,8 +36,9 @@
                     spellcheck="false"
                     required
                 >
-                <button type="button" id="pasteBtn" title="Coller">📋</button>
+                <button type="button" id="pasteBtn" title="Coller depuis le presse-papier">📋</button>
             </div>
+            <div id="platformHint" class="platform-hint"></div>
             <button type="submit" id="submitBtn">
                 <span class="btn-text">⬇️ Télécharger</span>
                 <span class="loader hidden"></span>
@@ -46,40 +47,25 @@
 
         <div id="resultCard" class="result-card hidden">
             <div class="platform-badge" id="platformBadge"></div>
+            <img id="thumbImg" class="thumb hidden" alt="Aperçu">
             <p id="videoTitle"></p>
             <a id="downloadLink" href="#" class="download-btn" target="_blank" rel="noopener">
-                💾 Enregistrer la vidéo
+                💾 Télécharger
             </a>
+            <div id="allMediaList" class="media-list"></div>
         </div>
 
         <div id="errorMsg" class="error-msg hidden"></div>
 
-        <!-- Bannière installation PWA -->
-        <div id="installBanner" class="install-banner hidden">
-            <div class="install-info">
-                <span class="install-icon">📲</span>
-                <div>
-                    <strong>Installer l'app</strong>
-                    <p>Utilise MENMA DLX comme une vraie app !</p>
-                </div>
-            </div>
-            <div class="install-actions">
-                <button type="button" id="installBtn" class="install-btn">Installer</button>
-                <button type="button" id="dismissBtn" class="dismiss-btn">✕</button>
-            </div>
-        </div>
-
         <footer>
-            <p>Powered by <strong>Dr Djibi</strong> · <span id="year"></span></p>
+            <p>Propulsé par MENMA · <span id="year"></span></p>
         </footer>
     </main>
 
     <script src="/app.js" defer></script>
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js');
-        }
+        if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
     </script>
 </body>
 </html>

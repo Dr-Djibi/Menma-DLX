@@ -398,3 +398,45 @@ footer strong {
         text-align: center;
     }
 }
+
+/* ── Hint plateforme ── */
+.platform-hint {
+    font-size: 0.82rem;
+    color: #6ee7b7;
+    min-height: 1.2em;
+    text-align: left;
+    padding-left: 0.3rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.platform-hint.visible { opacity: 1; }
+
+/* ── Thumbnail aperçu ── */
+.thumb {
+    width: 100%;
+    border-radius: 12px;
+    object-fit: cover;
+    max-height: 200px;
+}
+
+/* ── Carrousel all_media ── */
+.media-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.media-item-btn {
+    display: inline-block;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 0.8rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1px solid rgba(255,255,255,0.15);
+    transition: background 0.2s ease;
+}
+.media-item-btn:hover { background: rgba(255,255,255,0.2); }

@@ -1,6 +1,6 @@
-import ytdl from '@distube/ytdl-core';
 import btch from 'btch-downloader';
 import { snapsave } from 'snapsave-media-downloader';
+import axios from 'axios';
 
 /**
  * Détecte la plateforme depuis l'URL
@@ -15,65 +15,142 @@ function detectPlatform(url) {
 }
 
 /**
- * Handler YouTube
+ * Extrait l'ID d'une URL YouTube
+ */
+function extractYouTubeId(url) {
+    const match = url.match(/(?:v=|youtu\.be\/|\/shorts\/)([a-zA-Z0-9_-]{11})/);
+    return match ? match[1] : null;
+}
+
+/**
+ * YouTube via Invidious API (pas de bot check, instances publiques gratuites)
+ * On essaye plusieurs instances pour la résilience
  */
 async function getYouTubeData(url) {
-    const info = await ytdl.getInfo(url);
-    const title = info.videoDetails.title;
-    const format = ytdl.chooseFormat(info.formats, { quality: 'highest', filter: 'audioandvideo' });
-    if (!format?.url) throw new Error("Aucun format vidéo/audio combiné trouvé");
-    return { title, url: format.url, platform: 'YouTube' };
+    const videoId = extractYouTubeId(url);
+    if (!videoId) throw new Error("ID YouTube invalide");
+
+    const instances = [
+        'https://invidious.nerdvpn.de',
+        'https://invidious.privacyredirect.com',
+        'https://inv.tux.pizza',
+        'https://invidious.fdn.fr',
+    ];
+
+    for (const instance of instances) {
+        try {
+            const { data } = await axios.get(`${instance}/api/v1/videos/${videoId}`, {
+                timeout: 8000,
+                headers: { 'User-Agent': 'Mozilla/5.0' }
+            });
+
+            if (!data?.adaptiveFormats && !data?.formatStreams) continue;
+
+            // formatStreams = formats avec audio+vidéo combinés (mp4)
+            const combined = (data.formatStreams || [])
+                .filter(f => f.container === 'mp4')
+                .sort((a, b) => (parseInt(b.resolution) || 0) - (parseInt(a.resolution) || 0));
+
+            const best = combined[0];
+            if (!best?.url) continue;
+
+            return {
+                title: data.title || 'Vidéo YouTube',
+                url: best.url,
+                thumbnail: data.videoThumbnails?.find(t => t.quality === 'maxres')?.url
+                    || data.videoThumbnails?.[0]?.url || null,
+                platform: 'YouTube',
+                media_type: 'video'
+            };
+        } catch { continue; }
+    }
+    throw new Error("YouTube indisponible pour le moment. Réessaie dans quelques secondes.");
+}
+
+/**
+ * Instagram / TikTok / Facebook / Twitter via Snapsave + fallback btch
+ * Retourne UNIQUEMENT des vidéos (filtre les images)
+ */
+async function getSocialData(url, platform) {
+    // 1. Snapsave
+    try {
+        const snapRes = await snapsave(url);
+        if (snapRes.success && snapRes.data?.media?.length > 0) {
+            const medias = snapRes.data.media;
+
+            // Préférer une vidéo, sinon prendre le premier média
+            const videoMedia = medias.find(m => m.type === 'video');
+            const chosen = videoMedia || medias[0];
+
+            return {
+                title: `${platform} Vidéo`,
+                url: chosen.url,
+                thumbnail: snapRes.data.thumbnail || null,
+                platform,
+                media_type: videoMedia ? 'video' : 'image',
+                // Tous les médias disponibles (carrousel Instagram)
+                all_media: medias.map(m => ({ url: m.url, type: m.type || 'video' }))
+            };
+        }
+    } catch { /* fallback */ }
+
+    // 2. Fallback btch
+    try {
+        const btchRes = await btch.snapsave(url);
+        if (btchRes?.result?.length > 0) {
+            const item = btchRes.result[0];
+            return {
+                title: `${platform} Vidéo`,
+                url: item.url,
+                thumbnail: item.thumbnail || null,
+                platform,
+                media_type: 'video',
+                all_media: btchRes.result.map(r => ({ url: r.url, type: 'video' }))
+            };
+        }
+    } catch { /* fallback 2 */ }
+
+    throw new Error(`Impossible d'extraire la vidéo de ${platform}.`);
 }
 
 /**
  * Fonction serverless Vercel — POST /dlx
  */
 export default async function handler(req, res) {
-    // CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     if (req.method === 'OPTIONS') return res.status(200).end();
-    if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Méthode non autorisée' });
+    if (req.method !== 'POST') {
+        return res.status(405).json({ success: false, error: 'Méthode non autorisée' });
+    }
 
     const { url } = req.body || {};
     if (!url) return res.status(400).json({ success: false, error: "L'URL est requise" });
 
     const platform = detectPlatform(url);
-    if (!platform) return res.status(400).json({ success: false, error: "Plateforme non supportée" });
+    if (!platform) {
+        return res.status(400).json({ success: false, error: "Plateforme non supportée (YouTube, TikTok, Instagram, Facebook, X)" });
+    }
 
     try {
-        let result = { title: "Vidéo", url: null, platform };
-
-        if (platform === 'YouTube') {
-            result = await getYouTubeData(url);
-        } else {
-            // TikTok, Instagram, Facebook, Twitter → Snapsave + fallback btch
-            try {
-                const snapRes = await snapsave(url);
-                if (snapRes.success && snapRes.data?.media?.length > 0) {
-                    const videoMedia = snapRes.data.media.find(m => m.type === 'video') || snapRes.data.media[0];
-                    result.url = videoMedia.url;
-                } else throw new Error("Snapsave échec");
-            } catch {
-                const btchRes = await btch.snapsave(url);
-                if (btchRes?.result?.length > 0) result.url = btchRes.result[0].url;
-                else throw new Error("Impossible d'extraire la vidéo");
-            }
-        }
-
-        if (!result.url) return res.status(404).json({ success: false, error: "Lien direct introuvable" });
+        const result = platform === 'YouTube'
+            ? await getYouTubeData(url)
+            : await getSocialData(url, platform);
 
         return res.status(200).json({
             success: true,
             title: result.title,
             download_url: result.url,
-            platform: result.platform
+            thumbnail: result.thumbnail || null,
+            platform: result.platform,
+            media_type: result.media_type || 'video',
+            all_media: result.all_media || null
         });
 
     } catch (error) {
         console.error('[DLX Error]', error.message);
-        return res.status(500).json({ success: false, error: "Erreur extraction: " + error.message });
+        return res.status(500).json({ success: false, error: error.message });
     }
 }
