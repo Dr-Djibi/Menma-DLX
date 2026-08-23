@@ -15,56 +15,23 @@ function detectPlatform(url) {
 }
 
 /**
- * Extrait l'ID d'une URL YouTube
- */
-function extractYouTubeId(url) {
-    const match = url.match(/(?:v=|youtu\.be\/|\/shorts\/)([a-zA-Z0-9_-]{11})/);
-    return match ? match[1] : null;
-}
-
-/**
- * YouTube via Invidious API (pas de bot check, instances publiques gratuites)
- * On essaye plusieurs instances pour la résilience
+ * YouTube via btch-downloader (pas de bot check, très stable)
  */
 async function getYouTubeData(url) {
-    const videoId = extractYouTubeId(url);
-    if (!videoId) throw new Error("ID YouTube invalide");
-
-    const instances = [
-        'https://invidious.nerdvpn.de',
-        'https://invidious.privacyredirect.com',
-        'https://inv.tux.pizza',
-        'https://invidious.fdn.fr',
-    ];
-
-    for (const instance of instances) {
-        try {
-            const { data } = await axios.get(`${instance}/api/v1/videos/${videoId}`, {
-                timeout: 8000,
-                headers: { 'User-Agent': 'Mozilla/5.0' }
-            });
-
-            if (!data?.adaptiveFormats && !data?.formatStreams) continue;
-
-            // formatStreams = formats avec audio+vidéo combinés (mp4)
-            const combined = (data.formatStreams || [])
-                .filter(f => f.container === 'mp4')
-                .sort((a, b) => (parseInt(b.resolution) || 0) - (parseInt(a.resolution) || 0));
-
-            const best = combined[0];
-            if (!best?.url) continue;
-
+    try {
+        const res = await btch.youtube(url);
+        if (res && res.status && res.mp4) {
             return {
-                title: data.title || 'Vidéo YouTube',
-                url: best.url,
-                thumbnail: data.videoThumbnails?.find(t => t.quality === 'maxres')?.url
-                    || data.videoThumbnails?.[0]?.url || null,
+                title: res.title || 'Vidéo YouTube',
+                url: res.mp4,
+                thumbnail: res.thumbnail || null,
                 platform: 'YouTube',
                 media_type: 'video'
             };
-        } catch { continue; }
-    }
-    throw new Error("YouTube indisponible pour le moment. Réessaie dans quelques secondes.");
+        }
+    } catch {}
+    
+    throw new Error("YouTube indisponible pour le moment. Vérifie le lien ou réessaie plus tard.");
 }
 
 /**
