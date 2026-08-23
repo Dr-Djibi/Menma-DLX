@@ -12,6 +12,8 @@
     "dir": "ltr",
     "lang": "fr",
     "categories": ["utilities", "entertainment", "productivity"],
+    "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+    "prefer_related_applications": false,
     "icons": [
         {
             "src": "/icon-192.png",
