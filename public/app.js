@@ -133,3 +133,35 @@ downloadLink.addEventListener('click', function() {
     this.textContent = '⏳ Ouverture du fichier...';
     setTimeout(() => this.textContent = originalText, 3000);
 });
+
+// ── Fonctionnalité 1 : Share Target (Venant d'une autre application) ──
+window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const sharedUrl = params.get('url') || params.get('text');
+    
+    if (sharedUrl && /https?:\/\//.test(sharedUrl)) {
+        // Extraire l'URL si elle est noyée dans du texte
+        const urlMatch = sharedUrl.match(/(https?:\/\/[^\s]+)/);
+        if (urlMatch) {
+            urlInput.value = urlMatch[0];
+            urlInput.dispatchEvent(new Event('input'));
+            // Lancer le téléchargement automatiquement !
+            setTimeout(() => form.dispatchEvent(new Event('submit')), 500);
+        }
+    }
+});
+
+// ── Fonctionnalité 3 : Collage Automatique (Auto-Paste) au retour sur l'app ──
+document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState === 'visible' && !urlInput.value) {
+        try {
+            const text = await navigator.clipboard.readText();
+            if (/https?:\/\/[^\s]+/.test(text)) {
+                urlInput.value = text;
+                urlInput.dispatchEvent(new Event('input'));
+            }
+        } catch (e) {
+            // Ignorer silencieusement si le navigateur bloque l'accès automatique
+        }
+    }
+});
