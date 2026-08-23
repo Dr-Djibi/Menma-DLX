@@ -96,10 +96,14 @@ form.addEventListener('submit', async (e) => {
                 data.all_media.forEach((m, i) => {
                     const a = document.createElement('a');
                     a.href = m.url;
-                    a.target = '_blank';
-                    a.rel = 'noopener';
+                    a.download = '';
                     a.className = 'media-item-btn';
                     a.textContent = m.type === 'image' ? `🖼️ Image ${i + 1}` : `🎬 Vidéo ${i + 1}`;
+                    a.addEventListener('click', function() {
+                        const originalText = this.textContent;
+                        this.textContent = '⏳ Ouverture...';
+                        setTimeout(() => this.textContent = originalText, 3000);
+                    });
                     allMediaList.appendChild(a);
                 });
             }
@@ -123,3 +127,9 @@ function showError(msg) {
     errorMsg.textContent = '⚠️ ' + msg;
     errorMsg.classList.remove('hidden');
 }
+
+downloadLink.addEventListener('click', function() {
+    const originalText = this.textContent;
+    this.textContent = '⏳ Ouverture du fichier...';
+    setTimeout(() => this.textContent = originalText, 3000);
+});
