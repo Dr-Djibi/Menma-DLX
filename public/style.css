@@ -15,6 +15,11 @@
     box-sizing: border-box;
 }
 
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+}
+
 body {
     font-family: 'Outfit', sans-serif;
     background-color: var(--bg-dark);
@@ -23,14 +28,13 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow-x: hidden;
     position: relative;
     padding: 1rem;
 }
 
 /* Dynamic animated background blobs */
 .blob {
-    position: absolute;
+    position: fixed; /* FIXED au lieu de absolute empêche le scroll horizontal */
     filter: blur(80px);
     z-index: -1;
     opacity: 0.6;
