@@ -13,6 +13,7 @@
     "btch-downloader": "^6.3.6",
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "jimp": "^1.6.1",
     "snapsave-media-downloader": "^2.4.1"
   }
 }

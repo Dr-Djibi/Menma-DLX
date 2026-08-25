@@ -30,11 +30,18 @@ function detectPlatform(url) {
 /**
  * YouTube via @distube/ytdl-core
  */
-async function getYouTubeData(url) {
+async function getYouTubeData(url, formatType) {
     const info = await ytdl.getInfo(url);
     const title = info.videoDetails.title;
-    const format = ytdl.chooseFormat(info.formats, { quality: 'highest', filter: 'audioandvideo' });
-    if (!format || !format.url) throw new Error("Aucun format vidéo/audio combiné trouvé");
+    
+    let format;
+    if (formatType === 'audio') {
+        format = ytdl.chooseFormat(info.formats, { quality: 'highestaudio', filter: 'audioonly' });
+    } else {
+        format = ytdl.chooseFormat(info.formats, { quality: 'highest', filter: 'audioandvideo' });
+    }
+
+    if (!format || !format.url) throw new Error("Aucun format compatible trouvé");
     return { title, url: format.url, platform: 'YouTube' };
 }
 
@@ -42,7 +49,7 @@ async function getYouTubeData(url) {
  * Route API principale
  */
 app.post('/api/download', async (req, res) => {
-    const { url } = req.body;
+    const { url, format } = req.body;
     if (!url) return res.status(400).json({ success: false, error: "L'URL est requise" });
 
     try {
@@ -51,7 +58,7 @@ app.post('/api/download', async (req, res) => {
 
         switch (platform) {
             case 'YouTube':
-                result = await getYouTubeData(url);
+                result = await getYouTubeData(url, format);
                 break;
 
             case 'Instagram':

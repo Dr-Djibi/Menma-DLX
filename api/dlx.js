@@ -17,17 +17,20 @@ function detectPlatform(url) {
 /**
  * YouTube via btch-downloader (pas de bot check, très stable)
  */
-async function getYouTubeData(url) {
+async function getYouTubeData(url, format) {
     try {
         const res = await btch.youtube(url);
-        if (res && res.status && res.mp4) {
-            return {
-                title: res.title || 'Vidéo YouTube',
-                url: res.mp4,
-                thumbnail: res.thumbnail || null,
-                platform: 'YouTube',
-                media_type: 'video'
-            };
+        if (res && res.status) {
+            const mediaUrl = (format === 'audio' && res.mp3) ? res.mp3 : res.mp4;
+            if (mediaUrl) {
+                return {
+                    title: res.title || 'Vidéo YouTube',
+                    url: mediaUrl,
+                    thumbnail: res.thumbnail || null,
+                    platform: 'YouTube',
+                    media_type: format === 'audio' ? 'audio' : 'video'
+                };
+            }
         }
     } catch {}
     
@@ -38,24 +41,37 @@ async function getYouTubeData(url) {
  * Instagram / TikTok / Facebook / Twitter via Snapsave + fallback btch
  * Retourne UNIQUEMENT des vidéos (filtre les images)
  */
-async function getSocialData(url, platform) {
-    // 1. Snapsave
+async function getSocialData(url, platform, format) {
+    // Cas spécial TikTok Audio
+    if (platform === 'TikTok' && format === 'audio') {
+        try {
+            const ttRes = await btch.ttdl(url);
+            if (ttRes?.status && ttRes.audio?.length > 0) {
+                return {
+                    title: 'TikTok Audio',
+                    url: ttRes.audio[0],
+                    thumbnail: null,
+                    platform: 'TikTok',
+                    media_type: 'audio',
+                    all_media: null
+                };
+            }
+        } catch {}
+    }
+
+    // 1. Snapsave (Vidéos et Images)
     try {
         const snapRes = await snapsave(url);
         if (snapRes.success && snapRes.data?.media?.length > 0) {
             const medias = snapRes.data.media;
-
-            // Préférer une vidéo, sinon prendre le premier média
             const videoMedia = medias.find(m => m.type === 'video');
             const chosen = videoMedia || medias[0];
-
             return {
                 title: `${platform} Vidéo`,
                 url: chosen.url,
                 thumbnail: snapRes.data.thumbnail || null,
                 platform,
                 media_type: videoMedia ? 'video' : 'image',
-                // Tous les médias disponibles (carrousel Instagram)
                 all_media: medias.map(m => ({ url: m.url, type: m.type || 'video' }))
             };
         }
@@ -93,7 +109,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ success: false, error: 'Méthode non autorisée' });
     }
 
-    const { url } = req.body || {};
+    const { url, format } = req.body || {};
     if (!url) return res.status(400).json({ success: false, error: "L'URL est requise" });
 
     const platform = detectPlatform(url);
@@ -103,8 +119,8 @@ export default async function handler(req, res) {
 
     try {
         const result = platform === 'YouTube'
-            ? await getYouTubeData(url)
-            : await getSocialData(url, platform);
+            ? await getYouTubeData(url, format)
+            : await getSocialData(url, platform, format);
 
         return res.status(200).json({
             success: true,

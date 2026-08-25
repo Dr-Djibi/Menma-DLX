@@ -65,10 +65,14 @@ form.addEventListener('submit', async (e) => {
     submitBtn.disabled = true;
 
     try {
+        const isAudio = document.getElementById('formatToggle')?.checked;
         const res = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: urlInput.value.trim() })
+            body: JSON.stringify({ 
+                url: urlInput.value.trim(),
+                format: isAudio ? 'audio' : 'video'
+            })
         });
 
         const data = await res.json();
@@ -108,7 +112,8 @@ form.addEventListener('submit', async (e) => {
                 });
             }
 
-            resultCard.classList.remove('hidden');
+            resultCard.classList.remove("hidden");
+            if (navigator.vibrate) navigator.vibrate(50); // Haptic Success
             urlInput.value = '';
             if (platformHint) platformHint.textContent = '';
         } else {
@@ -124,6 +129,7 @@ form.addEventListener('submit', async (e) => {
 });
 
 function showError(msg) {
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100]); // Haptic Error
     errorMsg.textContent = '⚠️ ' + msg;
     errorMsg.classList.remove('hidden');
 }
