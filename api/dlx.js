@@ -132,34 +132,44 @@ async function getPinterestData(url) {
     try {
         const snap = await snapsave(url);
         if (snap?.success && snap.data?.media?.length > 0) {
-            const m = snap.data.media[0];
+            const medias = snap.data.media;
+            const videoMedia = medias.find(m => m.type === 'video' || m.url.includes('.mp4'));
+            const m = videoMedia || medias[0];
             return {
                 title: 'Pinterest Media',
                 url: m.url,
                 thumbnail: snap.data.thumbnail || null,
                 platform: 'Pinterest',
-                media_type: m.type || 'image',
-                all_media: snap.data.media.map(x => ({ url: x.url, type: x.type || 'image' }))
+                media_type: videoMedia ? 'video' : (m.type || 'image'),
+                all_media: medias.map(x => ({ url: x.url, type: x.type || 'image' }))
             };
         }
     } catch {}
     
     // Fallback btch
-    const res = await btch.pinterest(url);
-    if (res?.status && res.result?.result) {
-        const data = res.result.result;
-        const mediaUrl = data.video_url || data.image;
-        if (mediaUrl) {
-            return {
-                title: data.title || 'Pinterest Media',
-                url: mediaUrl,
-                thumbnail: data.image || null,
-                platform: 'Pinterest',
-                media_type: data.video_url ? 'video' : 'image',
-                all_media: null
-            };
+    try {
+        const res = await btch.pinterest(url);
+        if (res?.status) {
+            // btch peut renvoyer la data directement dans res.result ou res
+            const data = res.result?.result || res.result || res;
+            // On cherche l'url de la video d'abord
+            const video_url = data.video_url || data.video || (data.url && data.url.includes('.mp4') ? data.url : null);
+            const image_url = data.image || data.image_url || data.url;
+            const mediaUrl = video_url || image_url;
+            
+            if (mediaUrl) {
+                return {
+                    title: data.title || 'Pinterest Media',
+                    url: mediaUrl,
+                    thumbnail: image_url || null,
+                    platform: 'Pinterest',
+                    media_type: video_url ? 'video' : 'image',
+                    all_media: null
+                };
+            }
         }
-    }
+    } catch {}
+
     throw new Error("Impossible d'extraire le contenu Pinterest.");
 }
 
