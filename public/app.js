@@ -256,10 +256,44 @@ function showError(msg) {
     errorMsg.classList.remove('hidden');
 }
 
-downloadLink.addEventListener('click', function() {
+downloadLink.addEventListener('click', async function(e) {
+    e.preventDefault();
     const originalText = this.textContent;
-    this.textContent = '⏳ Ouverture du fichier...';
-    setTimeout(() => this.textContent = originalText, 3000);
+    this.textContent = '⏳ Préparation du fichier...';
+    const url = this.href;
+    
+    try {
+        // Tente de télécharger le fichier en tâche de fond pour éviter de quitter l'appli
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Network response was not ok');
+        const blob = await res.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        
+        // Extension dynamique
+        let ext = '.mp4';
+        if (this.textContent.includes('Audio')) ext = '.mp3';
+        if (this.textContent.includes('Image')) ext = '.jpg';
+        
+        a.download = (videoTitle.textContent || 'media') + ext;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+        // Fallback : si le téléchargement silencieux échoue (CORS ou blocage), ouvre le lien natif
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '';
+        a.target = '_blank';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+    
+    this.textContent = originalText;
 });
 
 // ── Fonctionnalité 1 : Share Target (Venant d'une autre application) ──

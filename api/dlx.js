@@ -143,18 +143,22 @@ async function getPinterestData(url) {
             };
         }
     } catch {}
+    
     // Fallback btch
     const res = await btch.pinterest(url);
-    if (res?.status && res.result?.url) {
-        const mt = res.result.url.match(/\.mp4/) ? 'video' : 'image';
-        return {
-            title: 'Pinterest Media',
-            url: res.result.url,
-            thumbnail: res.result.thumbnail || null,
-            platform: 'Pinterest',
-            media_type: mt,
-            all_media: null
-        };
+    if (res?.status && res.result?.result) {
+        const data = res.result.result;
+        const mediaUrl = data.video_url || data.image;
+        if (mediaUrl) {
+            return {
+                title: data.title || 'Pinterest Media',
+                url: mediaUrl,
+                thumbnail: data.image || null,
+                platform: 'Pinterest',
+                media_type: data.video_url ? 'video' : 'image',
+                all_media: null
+            };
+        }
     }
     throw new Error("Impossible d'extraire le contenu Pinterest.");
 }
