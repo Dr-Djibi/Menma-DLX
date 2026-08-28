@@ -49,23 +49,8 @@
                 <span class="toggle-label" id="labelAudio">🎵 Audio</span>
             </div>
 
-            <!-- Qualité dynamique selon le mode -->
-            <div class="quality-wrap" id="qualityWrap">
-                <div id="qualityVideo" class="quality-group">
-                    <button type="button" class="quality-btn active" data-q="sd">SD</button>
-                    <button type="button" class="quality-btn" data-q="hd">HD</button>
-                    <button type="button" class="quality-btn" data-q="fhd">1080p</button>
-                    <button type="button" class="quality-btn" data-q="4k">4K</button>
-                </div>
-                <div id="qualityAudio" class="quality-group hidden">
-                    <button type="button" class="quality-btn active" data-q="128k">128kbps</button>
-                    <button type="button" class="quality-btn" data-q="256k">256kbps</button>
-                    <button type="button" class="quality-btn" data-q="320k">320kbps</button>
-                </div>
-            </div>
-
             <button type="submit" id="submitBtn">
-                <span class="btn-text">⬇️ Télécharger</span>
+                <span class="btn-text">⬇️ Obtenir le média</span>
                 <span class="loader hidden"></span>
             </button>
 
@@ -78,10 +63,17 @@
 
         <div id="resultCard" class="result-card hidden">
             <div class="platform-badge" id="platformBadge"></div>
-            <img id="thumbImg" class="thumb hidden" alt="Aperçu">
+            
             <p id="videoTitle"></p>
-            <a id="downloadLink" href="#" target="_blank" class="download-btn" download>
-                💾 Télécharger
+            
+            <div id="mediaPlayerContainer" class="media-player-container hidden">
+                <video id="mediaPlayerVideo" class="media-player hidden" controls playsinline></video>
+                <audio id="mediaPlayerAudio" class="media-player hidden" controls></audio>
+                <img id="thumbImg" class="thumb hidden" alt="Aperçu">
+            </div>
+
+            <a id="downloadLink" href="#" class="download-btn" download>
+                💾 Forcer le téléchargement
             </a>
             <div id="allMediaList" class="media-list"></div>
         </div>
