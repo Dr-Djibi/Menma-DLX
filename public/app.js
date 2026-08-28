@@ -64,6 +64,15 @@ form.addEventListener('submit', async (e) => {
     submitBtn.querySelector('.loader').classList.remove('hidden');
     submitBtn.disabled = true;
 
+    // Compteur de temps en direct
+    let secs = 0;
+    const btnText = submitBtn.querySelector('.btn-text');
+    const timer = setInterval(() => {
+        secs++;
+        btnText.textContent = `⏳ ${secs}s…`;
+        btnText.classList.remove('hidden');
+    }, 1000);
+
     try {
         const isAudio = document.getElementById('formatToggle')?.checked;
         const res = await fetch(API_URL, {
@@ -122,7 +131,10 @@ form.addEventListener('submit', async (e) => {
     } catch {
         showError('Impossible de contacter le serveur. Vérifie ta connexion.');
     } finally {
-        submitBtn.querySelector('.btn-text').classList.remove('hidden');
+        clearInterval(timer);
+        const btnTextEl = submitBtn.querySelector('.btn-text');
+        btnTextEl.textContent = '⬇️ Télécharger';
+        btnTextEl.classList.remove('hidden');
         submitBtn.querySelector('.loader').classList.add('hidden');
         submitBtn.disabled = false;
     }
