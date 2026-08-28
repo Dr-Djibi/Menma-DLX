@@ -204,13 +204,13 @@ form.addEventListener('submit', async (e) => {
 
             // Lien de téléchargement
             downloadLink.href = data.download_url;
-            downloadLink.removeAttribute('target'); // Force la navigation ou le download natif
+            downloadLink.removeAttribute('target');
             if (data.media_type === 'audio') {
-                downloadLink.textContent = '🎵 Forcer l\'enregistrement (Audio)';
+                downloadLink.textContent = '🎵 Télécharger l\'audio';
             } else if (data.media_type === 'image') {
-                downloadLink.textContent = '🖼️ Forcer l\'enregistrement (Image)';
+                downloadLink.textContent = '🖼️ Télécharger l\'image';
             } else {
-                downloadLink.textContent = '💾 Forcer l\'enregistrement (Vidéo)';
+                downloadLink.textContent = '💾 Télécharger la vidéo';
             }
 
             // Carrousel Instagram (all_media)
@@ -243,7 +243,7 @@ form.addEventListener('submit', async (e) => {
         finishProgress(false);
         showError('Impossible de contacter le serveur. Vérifie ta connexion.');
     } finally {
-        submitBtn.querySelector('.btn-text').textContent = '⬇️ Télécharger';
+        submitBtn.querySelector('.btn-text').textContent = '⬇️ Obtenir le média';
         submitBtn.querySelector('.btn-text').classList.remove('hidden');
         submitBtn.querySelector('.loader').classList.add('hidden');
         submitBtn.disabled = false;
@@ -263,16 +263,15 @@ downloadLink.addEventListener('click', async function(e) {
     const url = this.href;
     
     try {
-        // Tente de télécharger le fichier en tâche de fond pour éviter de quitter l'appli
+        // 1. Tente un fetch invisible
         const res = await fetch(url);
-        if (!res.ok) throw new Error('Network response was not ok');
+        if (!res.ok) throw new Error('CORS block');
         const blob = await res.blob();
         const blobUrl = window.URL.createObjectURL(blob);
         
         const a = document.createElement('a');
         a.href = blobUrl;
         
-        // Extension dynamique
         let ext = '.mp4';
         if (this.textContent.includes('Audio')) ext = '.mp3';
         if (this.textContent.includes('Image')) ext = '.jpg';
@@ -283,14 +282,8 @@ downloadLink.addEventListener('click', async function(e) {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(blobUrl);
     } catch (err) {
-        // Fallback : si le téléchargement silencieux échoue (CORS ou blocage), ouvre le lien natif
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = '';
-        a.target = '_blank';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        // 2. Fallback via le Proxy Vercel (force le téléchargement sans quitter la page)
+        window.location.href = '/api/proxy?url=' + encodeURIComponent(url);
     }
     
     this.textContent = originalText;
