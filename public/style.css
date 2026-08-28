@@ -509,7 +509,7 @@ input:checked ~ .toggle-label:last-child {
 
 /* ── Sélecteur de qualité ─────────────────────────────────── */
 .quality-wrap {
-    display: flex;
+    display: none; /* hidden by default, shown only for YouTube */
     justify-content: center;
     margin: 0 0 14px;
 }

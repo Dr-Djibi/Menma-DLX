@@ -39,6 +39,14 @@ urlInput.addEventListener('input', () => {
     // Reset results when input changes
     resultCard.classList.add('hidden');
     errorMsg.classList.add('hidden');
+
+    // Show quality options only for YouTube
+    const qualityWrap = document.getElementById('qualityWrap');
+    if (detected === '▶️ YouTube') {
+        qualityWrap.style.display = 'flex';
+    } else {
+        qualityWrap.style.display = 'none';
+    }
 });
 
 // ── Bouton coller ────────────────────────────────────────────────────
@@ -180,6 +188,7 @@ form.addEventListener('submit', async (e) => {
                 data.all_media.forEach((m, i) => {
                     const a = document.createElement('a');
                     a.href = m.url;
+                    a.target = '_blank';
                     a.download = '';
                     a.className = 'media-item-btn';
                     a.textContent = m.type === 'image' ? `🖼️ Image ${i + 1}` : `🎬 Vidéo ${i + 1}`;
