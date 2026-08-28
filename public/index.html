@@ -41,18 +41,39 @@
             <div id="platformHint" class="platform-hint"></div>
             
             <div class="format-toggle">
-                <span class="toggle-label">🎬 Vidéo</span>
+                <span class="toggle-label" id="labelVideo">🎬 Vidéo</span>
                 <label class="switch">
                     <input type="checkbox" id="formatToggle">
                     <span class="slider round"></span>
                 </label>
-                <span class="toggle-label">🎵 Audio</span>
+                <span class="toggle-label" id="labelAudio">🎵 Audio</span>
+            </div>
+
+            <!-- Qualité dynamique selon le mode -->
+            <div class="quality-wrap" id="qualityWrap">
+                <div id="qualityVideo" class="quality-group">
+                    <button type="button" class="quality-btn active" data-q="sd">SD</button>
+                    <button type="button" class="quality-btn" data-q="hd">HD</button>
+                    <button type="button" class="quality-btn" data-q="fhd">1080p</button>
+                    <button type="button" class="quality-btn" data-q="4k">4K</button>
+                </div>
+                <div id="qualityAudio" class="quality-group hidden">
+                    <button type="button" class="quality-btn active" data-q="128k">128kbps</button>
+                    <button type="button" class="quality-btn" data-q="256k">256kbps</button>
+                    <button type="button" class="quality-btn" data-q="320k">320kbps</button>
+                </div>
             </div>
 
             <button type="submit" id="submitBtn">
                 <span class="btn-text">⬇️ Télécharger</span>
                 <span class="loader hidden"></span>
             </button>
+
+            <!-- Barre de progression -->
+            <div class="progress-wrap hidden" id="progressWrap">
+                <div class="progress-bar" id="progressBar"></div>
+                <span class="progress-label" id="progressLabel">Connexion…</span>
+            </div>
         </form>
 
         <div id="resultCard" class="result-card hidden">

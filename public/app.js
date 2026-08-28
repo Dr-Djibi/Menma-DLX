@@ -51,7 +51,76 @@ pasteBtn.addEventListener('click', async () => {
     } catch { urlInput.focus(); }
 });
 
-// ── Soumission du formulaire ─────────────────────────────────────────
+// ── Qualité — gestion des boutons ────────────────────────────────────
+const formatToggle = document.getElementById('formatToggle');
+const qualityVideo = document.getElementById('qualityVideo');
+const qualityAudio = document.getElementById('qualityAudio');
+let selectedQuality = 'sd';
+
+// Chaque groupe de qualité
+document.querySelectorAll('.quality-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const group = btn.closest('.quality-group');
+        group.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedQuality = btn.dataset.q;
+    });
+});
+
+// Switcher Vidéo ↔ Audio — change les boutons de qualité
+formatToggle.addEventListener('change', () => {
+    const isAudio = formatToggle.checked;
+    qualityVideo.classList.toggle('hidden', isAudio);
+    qualityAudio.classList.toggle('hidden', !isAudio);
+    // Reset sélection active
+    selectedQuality = isAudio ? '128k' : 'sd';
+    document.querySelectorAll('.quality-btn').forEach(b => {
+        b.classList.remove('active');
+        if (b.dataset.q === selectedQuality) b.classList.add('active');
+    });
+});
+
+// ── Barre de progression simulée ─────────────────────────────────────
+let progressInterval = null;
+
+function startProgress() {
+    const wrap = document.getElementById('progressWrap');
+    const bar = document.getElementById('progressBar');
+    const label = document.getElementById('progressLabel');
+
+    wrap.classList.remove('hidden');
+    bar.style.width = '0%';
+
+    const steps = [
+        { pct: 15, msg: 'Connexion au serveur…', delay: 300 },
+        { pct: 35, msg: 'Extraction du lien…',   delay: 1200 },
+        { pct: 60, msg: 'Analyse du média…',      delay: 2500 },
+        { pct: 80, msg: 'Préparation…',           delay: 4000 },
+        { pct: 92, msg: 'Presque prêt…',          delay: 6000 },
+    ];
+
+    steps.forEach(({ pct, msg, delay }) => {
+        setTimeout(() => {
+            bar.style.width = pct + '%';
+            label.textContent = msg;
+        }, delay);
+    });
+}
+
+function finishProgress(success = true) {
+    const bar = document.getElementById('progressBar');
+    const label = document.getElementById('progressLabel');
+    const wrap = document.getElementById('progressWrap');
+
+    bar.style.width = '100%';
+    label.textContent = success ? '✅ Prêt !' : '❌ Erreur';
+    setTimeout(() => {
+        wrap.classList.add('hidden');
+        bar.style.width = '0%';
+    }, 1200);
+}
+
+// ── Soumission du formulaire ─────────────────────────────────────
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -60,39 +129,35 @@ form.addEventListener('submit', async (e) => {
     allMediaList.innerHTML = '';
     thumbImg.classList.add('hidden');
 
-    submitBtn.querySelector('.btn-text').classList.add('hidden');
+    submitBtn.querySelector('.btn-text').textContent = '⬇️ Télécharger';
     submitBtn.querySelector('.loader').classList.remove('hidden');
+    submitBtn.querySelector('.btn-text').classList.add('hidden');
     submitBtn.disabled = true;
 
-    // Compteur de temps en direct
-    let secs = 0;
-    const btnText = submitBtn.querySelector('.btn-text');
-    const timer = setInterval(() => {
-        secs++;
-        btnText.textContent = `⏳ ${secs}s…`;
-        btnText.classList.remove('hidden');
-    }, 1000);
+    startProgress();
 
     try {
-        const isAudio = document.getElementById('formatToggle')?.checked;
+        const isAudio = formatToggle?.checked;
         const res = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 url: urlInput.value.trim(),
-                format: isAudio ? 'audio' : 'video'
+                format: isAudio ? 'audio' : 'video',
+                quality: selectedQuality
             })
         });
 
         const data = await res.json();
 
         if (data.success) {
+            finishProgress(true);
             // Badge plateforme
-            const icons = { YouTube: '▶️', TikTok: '🎵', Instagram: '📸', Facebook: '👤', Twitter: '🐦' };
+            const icons = { YouTube: '▶️', TikTok: '🎵', Instagram: '📸', Facebook: '👤', Twitter: '🐦', Spotify: '🎵', SoundCloud: '🎧' };
             platformBadge.textContent = (icons[data.platform] || '🌐') + ' ' + data.platform;
 
             // Titre
-            videoTitle.textContent = data.title || 'Vidéo prête !';
+            videoTitle.textContent = data.title || 'Prêt !';
 
             // Thumbnail si disponible
             if (data.thumbnail) {
@@ -102,7 +167,13 @@ form.addEventListener('submit', async (e) => {
 
             // Lien de téléchargement principal
             downloadLink.href = data.download_url;
-            downloadLink.textContent = data.media_type === 'image' ? '🖼️ Télécharger l\'image' : '💾 Télécharger la vidéo';
+            if (data.media_type === 'audio') {
+                downloadLink.textContent = '🎵 Télécharger l\'audio';
+            } else if (data.media_type === 'image') {
+                downloadLink.textContent = '🖼️ Télécharger l\'image';
+            } else {
+                downloadLink.textContent = `💾 Télécharger (${data.quality || selectedQuality})`;
+            }
 
             // Carrousel Instagram (all_media)
             if (data.all_media && data.all_media.length > 1) {
@@ -121,20 +192,20 @@ form.addEventListener('submit', async (e) => {
                 });
             }
 
-            resultCard.classList.remove("hidden");
-            if (navigator.vibrate) navigator.vibrate(50); // Haptic Success
+            resultCard.classList.remove('hidden');
+            if (navigator.vibrate) navigator.vibrate(50);
             urlInput.value = '';
             if (platformHint) platformHint.textContent = '';
         } else {
+            finishProgress(false);
             showError(data.error || 'Erreur lors du téléchargement');
         }
     } catch {
+        finishProgress(false);
         showError('Impossible de contacter le serveur. Vérifie ta connexion.');
     } finally {
-        clearInterval(timer);
-        const btnTextEl = submitBtn.querySelector('.btn-text');
-        btnTextEl.textContent = '⬇️ Télécharger';
-        btnTextEl.classList.remove('hidden');
+        submitBtn.querySelector('.btn-text').textContent = '⬇️ Télécharger';
+        submitBtn.querySelector('.btn-text').classList.remove('hidden');
         submitBtn.querySelector('.loader').classList.add('hidden');
         submitBtn.disabled = false;
     }
