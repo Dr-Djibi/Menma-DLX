@@ -169,37 +169,10 @@ form.addEventListener('submit', async (e) => {
             // Titre
             videoTitle.textContent = data.title || 'Prêt !';
 
-            // Thumbnail / Player
-            const playerContainer = document.getElementById('mediaPlayerContainer');
-            const videoPlayer = document.getElementById('mediaPlayerVideo');
-            const audioPlayer = document.getElementById('mediaPlayerAudio');
-            
-            playerContainer.classList.remove('hidden');
-            thumbImg.classList.add('hidden');
-            videoPlayer.classList.add('hidden');
-            audioPlayer.classList.add('hidden');
-            
-            // On arrête les médias précédents
-            videoPlayer.pause();
-            audioPlayer.pause();
-            videoPlayer.removeAttribute('src');
-            audioPlayer.removeAttribute('src');
-
-            if (data.media_type === 'audio') {
-                audioPlayer.src = data.download_url;
-                audioPlayer.classList.remove('hidden');
-                if (data.thumbnail) {
-                    thumbImg.src = data.thumbnail;
-                    thumbImg.classList.remove('hidden');
-                }
-            } else if (data.media_type === 'video') {
-                videoPlayer.src = data.download_url;
-                videoPlayer.classList.remove('hidden');
-            } else {
-                if (data.thumbnail || data.download_url) {
-                    thumbImg.src = data.thumbnail || data.download_url;
-                    thumbImg.classList.remove('hidden');
-                }
+            // Thumbnail si disponible
+            if (data.thumbnail || data.download_url) {
+                thumbImg.src = data.thumbnail || data.download_url;
+                thumbImg.classList.remove('hidden');
             }
 
             // Lien de téléchargement

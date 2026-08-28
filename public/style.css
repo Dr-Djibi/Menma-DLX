@@ -581,24 +581,6 @@ input:checked ~ .toggle-label:last-child {
     pointer-events: none;
 }
 
-/* ── Media Player ────────────────────────────────────────── */
-.media-player-container {
-    width: 100%;
-    margin-top: 15px;
-    border-radius: 12px;
-    overflow: hidden;
-    background: var(--glass-border);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.media-player {
-    width: 100%;
-    max-height: 350px;
-    outline: none;
-    border-radius: 12px;
-}
-audio.media-player {
     height: 54px;
     background: var(--glass-bg);
 }
