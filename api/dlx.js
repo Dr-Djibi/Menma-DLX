@@ -1,5 +1,6 @@
 import btch from 'btch-downloader';
 import { snapsave } from 'snapsave-media-downloader';
+import axios from 'axios';
 
 // ── Multi-tenant API keys (optionnel) ──────────────────────────
 // Chaque clé identifie un tenant (bot, site, app tierce)
@@ -55,14 +56,25 @@ async function getYouTubeData(url, format = 'video', quality = 'hd') {
 }
 
 async function getTikTokData(url, format = 'video') {
-    const res = await btch.ttdl(url);
-    if (res?.status) {
+    // btch.ttdl est cassé (retourne video:[] vide) — on appelle le backend directement
+    let res = null;
+    try {
+        const { data } = await axios.get('https://backend1.tioo.eu.org/ttdl', {
+            params: { url },
+            timeout: 20000,
+            headers: { 'User-Agent': 'Mozilla/5.0 (compatible; MenmaDLX/1.0)' }
+        });
+        if (data?.status) res = data;
+    } catch (_) {}
+
+    if (res) {
+        const thumbnail = res.thumbnail || res.cover || null;
         // Audio demandé
         if (format === 'audio' && res.audio?.length > 0) {
             return {
                 title: res.title || 'TikTok Audio',
                 url: res.audio[0],
-                thumbnail: res.cover || null,
+                thumbnail,
                 platform: 'TikTok',
                 media_type: 'audio',
                 all_media: null
@@ -73,19 +85,19 @@ async function getTikTokData(url, format = 'video') {
             return {
                 title: res.title || 'TikTok Photos',
                 url: res.images[0],
-                thumbnail: res.cover || null,
+                thumbnail,
                 platform: 'TikTok',
                 media_type: 'image',
                 all_media: res.images.map(u => ({ url: u, type: 'image' }))
             };
         }
         // Vidéo par défaut
-        const videoUrl = res.video?.[0] || null;
+        const videoUrl = Array.isArray(res.video) ? res.video[0] : res.video;
         if (videoUrl) {
             return {
                 title: res.title || 'TikTok Vidéo',
                 url: videoUrl,
-                thumbnail: res.cover || null,
+                thumbnail,
                 platform: 'TikTok',
                 media_type: 'video',
                 all_media: null
