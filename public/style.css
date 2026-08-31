@@ -696,3 +696,89 @@ input:checked ~ .toggle-label:last-child {
     text-overflow: ellipsis;
     text-align: center;
 }
+
+/* ── Feature 2: Bannière presse-papier ─────────────────── */
+.clipboard-banner {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--primary);
+    color: #fff;
+    border-radius: 14px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 1000;
+    box-shadow: 0 8px 30px rgba(99,102,241,0.4);
+    font-size: 0.9rem;
+    font-weight: 600;
+    max-width: 90vw;
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+.clipboard-banner.visible {
+    transform: translateX(-50%) translateY(0);
+}
+.clipboard-banner button {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: #fff;
+    border-radius: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+.clipboard-banner-close {
+    background: none !important;
+    padding: 4px 6px !important;
+    opacity: 0.7;
+}
+
+/* ── Feature 4: Slide-in animation résultat ─────────────── */
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(24px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.result-card:not(.hidden) {
+    animation: slideUp 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+/* ── Feature 5: Compteur downloads ─────────────────────── */
+.dl-counter {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+/* ── Feature 1: Bouton Partager (result-actions) ────────── */
+.result-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 4px;
+}
+.result-actions .download-btn {
+    flex: 1;
+    margin-top: 0;
+}
+.share-btn {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text);
+    border-radius: 14px;
+    width: 50px;
+    height: 50px;
+    font-size: 1.3rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, background 0.2s;
+    flex-shrink: 0;
+}
+.share-btn:active { transform: scale(0.9); }

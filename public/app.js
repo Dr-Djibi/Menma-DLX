@@ -162,6 +162,8 @@ form.addEventListener('submit', async (e) => {
 
         if (data.success) {
             finishProgress(true);
+            incrementCount();
+            hideBanner();
             saveHistory(data, urlInput.value.trim());
             // Badge plateforme
             const icons = { YouTube: '▶️', TikTok: '🎵', Instagram: '📸', Facebook: '👤', Twitter: '🐦', Spotify: '🎵', SoundCloud: '🎧', Pinterest: '📌' };
@@ -414,3 +416,96 @@ function launchConfetti() {
     if (frame) cancelAnimationFrame(frame);
     draw();
 }
+
+// ── Feature 5: Compteur de téléchargements ───────────────────
+function getCount() { return parseInt(localStorage.getItem('menmaCount') || '0'); }
+function incrementCount() {
+    const c = getCount() + 1;
+    localStorage.setItem('menmaCount', c);
+    updateCountDisplay(c);
+}
+function updateCountDisplay(c) {
+    const el = document.getElementById('dlCount');
+    if (el) el.textContent = c.toLocaleString('fr-FR');
+}
+document.addEventListener('DOMContentLoaded', () => updateCountDisplay(getCount()));
+
+// ── Feature 2: Bannière presse-papier améliorée ──────────────
+let bannerUrl = '';
+const clipboardBanner = document.getElementById('clipboardBanner');
+const clipboardBannerText = document.getElementById('clipboardBannerText');
+const clipboardBannerBtn = document.getElementById('clipboardBannerBtn');
+const clipboardBannerClose = document.getElementById('clipboardBannerClose');
+
+async function checkClipboardForUrl() {
+    if (urlInput.value.trim()) return; // ne pas afficher si champ déjà rempli
+    try {
+        const text = await navigator.clipboard.readText();
+        const match = text.match(/(https?:\/\/[^\s]+)/);
+        if (!match) return;
+        const url = match[0];
+        // Vérifier que c'est un lien d'une plateforme supportée
+        const supported = ['tiktok.com', 'youtube.com', 'youtu.be', 'instagram.com', 'facebook.com', 'fb.watch', 'pinterest.com', 'pin.it', 'twitter.com', 'x.com', 'spotify.com', 'soundcloud.com'];
+        if (!supported.some(d => url.includes(d))) return;
+
+        // Detecter le nom de la plateforme
+        let platform = '🔗 Lien';
+        if (url.includes('tiktok')) platform = '🎵 TikTok';
+        else if (url.includes('youtube') || url.includes('youtu.be')) platform = '▶️ YouTube';
+        else if (url.includes('instagram')) platform = '📸 Instagram';
+        else if (url.includes('facebook') || url.includes('fb.watch')) platform = '👤 Facebook';
+        else if (url.includes('pinterest') || url.includes('pin.it')) platform = '📌 Pinterest';
+        else if (url.includes('twitter') || url.includes('x.com')) platform = '🐦 X';
+
+        bannerUrl = url;
+        clipboardBannerText.textContent = `${platform} détecté`;
+        clipboardBanner.classList.remove('hidden');
+        setTimeout(() => clipboardBanner.classList.add('visible'), 10);
+
+        // Auto-hide après 8s
+        setTimeout(() => hideBanner(), 8000);
+    } catch {}
+}
+
+function hideBanner() {
+    clipboardBanner.classList.remove('visible');
+    setTimeout(() => clipboardBanner.classList.add('hidden'), 400);
+}
+
+clipboardBannerBtn?.addEventListener('click', () => {
+    if (bannerUrl) {
+        urlInput.value = bannerUrl;
+        urlInput.dispatchEvent(new Event('input'));
+        form.dispatchEvent(new Event('submit'));
+        hideBanner();
+    }
+});
+clipboardBannerClose?.addEventListener('click', hideBanner);
+
+// Vérifier au focus de la page (revient depuis une autre app)
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') checkClipboardForUrl();
+});
+// Vérifier au chargement
+document.addEventListener('DOMContentLoaded', () => setTimeout(checkClipboardForUrl, 500));
+
+// ── Feature 1: Bouton Partager l'appli ───────────────────────
+document.getElementById('shareAppBtn')?.addEventListener('click', async () => {
+    const title = document.getElementById('videoTitle')?.textContent || '';
+    const shareData = {
+        title: 'MENMA DLX',
+        text: `Télécharge tes vidéos TikTok, YouTube, Instagram en 1 clic 🔥`,
+        url: 'https://menma-dlx.vercel.app'
+    };
+    try {
+        if (navigator.share) {
+            await navigator.share(shareData);
+        } else {
+            await navigator.clipboard.writeText(shareData.url);
+            const btn = document.getElementById('shareAppBtn');
+            btn.textContent = '✅';
+            setTimeout(() => btn.textContent = '🔗', 2000);
+        }
+    } catch {}
+    if (navigator.vibrate) navigator.vibrate(30);
+});

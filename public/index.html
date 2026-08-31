@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MENMA DLX</title>
-    <meta name="description" content="Téléchargeur vidéo universel — TikTok, YouTube, Instagram, Facebook, X">
+    <meta name="description" content="Téléchargeur vidéo universel — TikTok, YouTube, Instagram, Facebook, Pinterest">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#0d1117">
     <meta name="mobile-web-app-capable" content="yes">
@@ -19,6 +19,13 @@
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
 
+    <!-- Bannière presse-papier (Feature 2) -->
+    <div class="clipboard-banner hidden" id="clipboardBanner">
+        <span id="clipboardBannerText">🔗 Lien détecté</span>
+        <button id="clipboardBannerBtn">Télécharger →</button>
+        <button class="clipboard-banner-close" id="clipboardBannerClose">✕</button>
+    </div>
+
     <canvas id="confettiCanvas"></canvas>
     <main class="container glass">
         <header>
@@ -27,6 +34,8 @@
                 <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème">☀️</button>
             </div>
             <p class="subtitle">TikTok · YouTube · Instagram · Facebook · Pinterest</p>
+            <!-- Compteur (Feature 5) -->
+            <div class="dl-counter" id="dlCounter">🔥 <span id="dlCount">0</span> vidéos téléchargées</div>
         </header>
 
         <form id="downloadForm">
@@ -68,21 +77,19 @@
         <!-- Historique -->
         <div class="history-wrap hidden" id="historyWrap">
             <h3><span class="icon">🕒</span> Récents</h3>
-            <div class="history-gallery" id="historyGallery">
-                <!-- JS -->
-            </div>
+            <div class="history-gallery" id="historyGallery"></div>
         </div>
 
+        <!-- Résultat -->
         <div id="resultCard" class="result-card hidden">
             <div class="platform-badge" id="platformBadge"></div>
-            
             <p id="videoTitle"></p>
-            
             <img id="thumbImg" class="thumb hidden" alt="Aperçu">
 
-            <a id="downloadLink" href="#" class="download-btn" download>
-                💾 Télécharger
-            </a>
+            <div class="result-actions">
+                <a id="downloadLink" href="#" class="download-btn" download>💾 Télécharger</a>
+                <button class="share-btn" id="shareAppBtn" title="Partager l'appli">🔗</button>
+            </div>
             <div id="allMediaList" class="media-list"></div>
         </div>
 
