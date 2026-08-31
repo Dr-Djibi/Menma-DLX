@@ -782,3 +782,18 @@ input:checked ~ .toggle-label:last-child {
     flex-shrink: 0;
 }
 .share-btn:active { transform: scale(0.9); }
+
+/* ── Header actions group ───────────────────────────────── */
+.header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+/* Share btn in header: same size as theme toggle */
+.header-actions .share-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+    border-radius: 50%;
+    margin-top: 0;
+}

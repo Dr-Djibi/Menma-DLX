@@ -31,7 +31,10 @@
         <header>
             <div class="header-row">
                 <h1 class="logo">MENMA <span>DLX</span></h1>
-                <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème">☀️</button>
+                <div class="header-actions">
+                    <button class="share-btn" id="shareAppBtn" title="Partager l'appli">🔗</button>
+                    <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème">☀️</button>
+                </div>
             </div>
             <p class="subtitle">TikTok · YouTube · Instagram · Facebook · Pinterest</p>
             <!-- Compteur (Feature 5) -->
@@ -86,10 +89,7 @@
             <p id="videoTitle"></p>
             <img id="thumbImg" class="thumb hidden" alt="Aperçu">
 
-            <div class="result-actions">
-                <a id="downloadLink" href="#" class="download-btn" download>💾 Télécharger</a>
-                <button class="share-btn" id="shareAppBtn" title="Partager l'appli">🔗</button>
-            </div>
+            <a id="downloadLink" href="#" class="download-btn" download>💾 Télécharger</a>
             <div id="allMediaList" class="media-list"></div>
         </div>
 
