@@ -162,8 +162,9 @@ form.addEventListener('submit', async (e) => {
 
         if (data.success) {
             finishProgress(true);
+            saveHistory(data, urlInput.value.trim());
             // Badge plateforme
-            const icons = { YouTube: '▶️', TikTok: '🎵', Instagram: '📸', Facebook: '👤', Twitter: '🐦', Spotify: '🎵', SoundCloud: '🎧' };
+            const icons = { YouTube: '▶️', TikTok: '🎵', Instagram: '📸', Facebook: '👤', Twitter: '🐦', Spotify: '🎵', SoundCloud: '🎧', Pinterest: '📌' };
             platformBadge.textContent = (icons[data.platform] || '🌐') + ' ' + data.platform;
 
             // Titre
@@ -293,3 +294,65 @@ document.addEventListener('visibilitychange', async () => {
         }
     }
 });
+
+// ── Historique des téléchargements (Local Storage) ───────────
+function saveHistory(data, originalUrl) {
+    if (!data.thumbnail) return;
+    let history = JSON.parse(localStorage.getItem('menmaHistory') || '[]');
+    // Retirer si existe déjà pour le remettre au début
+    history = history.filter(h => h.originalUrl !== originalUrl);
+    history.unshift({
+        title: data.title || 'Média',
+        thumbnail: data.thumbnail,
+        platform: data.platform,
+        originalUrl: originalUrl
+    });
+    // Conserver max 8 éléments
+    history = history.slice(0, 8);
+    localStorage.setItem('menmaHistory', JSON.stringify(history));
+    renderHistory();
+}
+
+function renderHistory() {
+    const historyWrap = document.getElementById('historyWrap');
+    const historyGallery = document.getElementById('historyGallery');
+    if (!historyWrap || !historyGallery) return;
+
+    const history = JSON.parse(localStorage.getItem('menmaHistory') || '[]');
+    
+    if (history.length === 0) {
+        historyWrap.classList.add('hidden');
+        return;
+    }
+    
+    historyWrap.classList.remove('hidden');
+    historyGallery.innerHTML = '';
+    
+    history.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.onclick = () => {
+            urlInput.value = item.originalUrl;
+            urlInput.dispatchEvent(new Event('input'));
+            form.dispatchEvent(new Event('submit'));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+        
+        let platformIcon = '🌐';
+        for (const [key, label] of Object.entries(PLATFORM_ICONS)) {
+            if (label.includes(item.platform)) {
+                platformIcon = label.split(' ')[0];
+                break;
+            }
+        }
+
+        div.innerHTML = `
+            <div class="history-platform">${platformIcon}</div>
+            <img class="history-thumb" src="${item.thumbnail}" alt="thumb">
+            <div class="history-title">${item.title}</div>
+        `;
+        historyGallery.appendChild(div);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', renderHistory);
