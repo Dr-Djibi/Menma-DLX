@@ -19,14 +19,14 @@ body.light-mode {
     --bg-dark: #f0f2f5;
     --text: #111827;
     --text-main: #111827;
-    --text-muted: #6b7280;
-    --glass-bg: rgba(255,255,255,0.7);
-    --glass-border: rgba(0,0,0,0.1);
+    --text-muted: #374151;
+    --glass-bg: rgba(255,255,255,0.75);
+    --glass-border: rgba(0,0,0,0.12);
     --input-bg: rgba(0,0,0,0.05);
     --shadow: rgba(0,0,0,0.1);
 }
 body.light-mode { background-color: var(--bg); color: var(--text); }
-body.light-mode .blob { opacity: 0.15; }
+body.light-mode .blob { opacity: 0.12; }
 
 /* ── Canvas confettis ───────────────────────────────────── */
 #confettiCanvas {
@@ -404,13 +404,40 @@ footer {
     margin-top: 1.5rem;
     text-align: center;
     font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-muted);
 }
 
 footer strong { 
     color: var(--accent);
     font-weight: 700;
     letter-spacing: 0.5px;
+}
+
+/* Light mode explicit overrides */
+body.light-mode footer {
+    color: #374151;
+}
+body.light-mode .dl-counter {
+    color: #374151;
+}
+body.light-mode header p,
+body.light-mode .subtitle {
+    color: #374151;
+}
+body.light-mode .input-wrap input {
+    background: rgba(0,0,0,0.05);
+    color: #111827;
+    border-color: rgba(0,0,0,0.15);
+}
+body.light-mode .platform-hint {
+    color: #059669;
+}
+body.light-mode #videoTitle {
+    color: #111827;
+}
+body.light-mode .platform-badge {
+    background: rgba(0,0,0,0.08);
+    color: #111827;
 }
 
 /* ── Responsive Design ── */
@@ -468,9 +495,16 @@ footer strong {
 /* ── Thumbnail aperçu ── */
 .thumb {
     width: 100%;
-    border-radius: 12px;
+    border-radius: 14px;
     object-fit: cover;
-    max-height: 200px;
+    aspect-ratio: 16/9;
+    max-height: 220px;
+    background: rgba(255,255,255,0.05);
+    animation: fadeIn 0.4s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.97); }
+    to   { opacity: 1; transform: scale(1); }
 }
 
 /* ── Carrousel all_media ── */
@@ -631,9 +665,6 @@ input:checked ~ .toggle-label:last-child {
     pointer-events: none;
 }
 
-    height: 54px;
-    background: var(--glass-bg);
-}
 
 /* ── Historique ────────────────────────────────────────── */
 .history-wrap {

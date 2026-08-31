@@ -172,10 +172,21 @@ form.addEventListener('submit', async (e) => {
             // Titre
             videoTitle.textContent = data.title || 'Prêt !';
 
-            // Thumbnail si disponible
-            if (data.thumbnail || data.download_url) {
-                thumbImg.src = data.thumbnail || data.download_url;
-                thumbImg.classList.remove('hidden');
+            // Thumbnail si disponible (uniquement si URL thumbnail réelle)
+            if (data.thumbnail && data.thumbnail !== data.download_url) {
+                thumbImg.src = '';
+                thumbImg.classList.add('hidden');
+                const img = new Image();
+                img.onload = () => {
+                    thumbImg.src = data.thumbnail;
+                    thumbImg.classList.remove('hidden');
+                };
+                img.onerror = () => {
+                    thumbImg.classList.add('hidden');
+                };
+                img.src = data.thumbnail;
+            } else {
+                thumbImg.classList.add('hidden');
             }
 
             // Lien de téléchargement
@@ -236,34 +247,43 @@ function showError(msg) {
 downloadLink.addEventListener('click', async function(e) {
     e.preventDefault();
     const originalText = this.textContent;
-    this.textContent = '⏳ Préparation du fichier...';
+    this.textContent = '⏳ Préparation…';
+    this.style.pointerEvents = 'none';
     const url = this.href;
-    
+
+    const proxyUrl = '/api/proxy?url=' + encodeURIComponent(url);
+
+    // Essai 1 — Proxy serveur (rapide, pas de CORS)
     try {
-        // 1. Tente un fetch invisible
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('CORS block');
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        const res = await fetch(proxyUrl, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
+        if (!res.ok) throw new Error('Proxy error');
         const blob = await res.blob();
         const blobUrl = window.URL.createObjectURL(blob);
-        
         const a = document.createElement('a');
         a.href = blobUrl;
-        
         let ext = '.mp4';
-        if (this.textContent.includes('Audio')) ext = '.mp3';
-        if (this.textContent.includes('Image')) ext = '.jpg';
-        
-        a.download = (videoTitle.textContent || 'media') + ext;
+        if (originalText.includes('Audio') || originalText.includes('audio')) ext = '.mp3';
+        if (originalText.includes('Image') || originalText.includes('image')) ext = '.jpg';
+        a.download = (videoTitle.textContent || 'media').replace(/[/\\?%*:|"<>]/g, '-') + ext;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(blobUrl);
+        this.textContent = '✅ Téléchargé !';
+        setTimeout(() => { this.textContent = originalText; this.style.pointerEvents = ''; }, 2500);
+        return;
     } catch (err) {
-        // 2. Fallback via le Proxy Vercel (force le téléchargement sans quitter la page)
-        window.location.href = '/api/proxy?url=' + encodeURIComponent(url);
+        // ignore, try fallback
     }
-    
+
+    // Fallback — ouvrir directement le lien d'origine
+    window.open(url, '_blank');
     this.textContent = originalText;
+    this.style.pointerEvents = '';
 });
 
 // ── Fonctionnalité 1 : Share Target (Venant d'une autre application) ──
