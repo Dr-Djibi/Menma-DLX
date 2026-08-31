@@ -207,6 +207,7 @@ form.addEventListener('submit', async (e) => {
 
             resultCard.classList.remove('hidden');
             if (navigator.vibrate) navigator.vibrate(50);
+            launchConfetti();
             urlInput.value = '';
             if (platformHint) platformHint.textContent = '';
         } else {
@@ -356,3 +357,60 @@ function renderHistory() {
 }
 
 document.addEventListener('DOMContentLoaded', renderHistory);
+
+// ── Thème Clair / Sombre ──────────────────────────────────────
+const themeToggle = document.getElementById('themeToggle');
+const savedTheme = localStorage.getItem('menmaTheme');
+if (savedTheme === 'light') {
+    document.body.classList.add('light-mode');
+    themeToggle.textContent = '🌙';
+}
+themeToggle?.addEventListener('click', () => {
+    const isLight = document.body.classList.toggle('light-mode');
+    themeToggle.textContent = isLight ? '🌙' : '☀️';
+    localStorage.setItem('menmaTheme', isLight ? 'light' : 'dark');
+    if (navigator.vibrate) navigator.vibrate(30);
+});
+
+// ── Confettis ─────────────────────────────────────────────────
+function launchConfetti() {
+    const canvas = document.getElementById('confettiCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const colors = ['#6366f1', '#f43f5e', '#10b981', '#f59e0b', '#3b82f6', '#a855f7'];
+    const particles = Array.from({ length: 90 }, () => ({
+        x: Math.random() * canvas.width,
+        y: -10,
+        r: Math.random() * 7 + 4,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        speed: Math.random() * 3 + 2,
+        drift: (Math.random() - 0.5) * 2,
+        rotation: Math.random() * 360,
+        rotSpeed: (Math.random() - 0.5) * 6
+    }));
+
+    let frame;
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let alive = false;
+        particles.forEach(p => {
+            p.y += p.speed;
+            p.x += p.drift;
+            p.rotation += p.rotSpeed;
+            if (p.y < canvas.height + 20) alive = true;
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate((p.rotation * Math.PI) / 180);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 0.5);
+            ctx.restore();
+        });
+        if (alive) frame = requestAnimationFrame(draw);
+        else ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    if (frame) cancelAnimationFrame(frame);
+    draw();
+}
