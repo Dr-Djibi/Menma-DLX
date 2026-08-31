@@ -56,6 +56,16 @@ async function getYouTubeData(url, format = 'video', quality = 'hd') {
 }
 
 async function getTikTokData(url, format = 'video') {
+    // Resolve short URLs first
+    if (url.includes('vm.tiktok.com') || url.includes('vt.tiktok.com')) {
+        try {
+            const res = await axios.get(url, { maxRedirects: 0, validateStatus: s => s >= 200 && s < 400 });
+            if (res.headers.location) url = res.headers.location.split('?')[0];
+        } catch (e) {
+            if (e.response?.headers?.location) url = e.response.headers.location.split('?')[0];
+        }
+    }
+
     // btch.ttdl est cassé (retourne video:[] vide) — on appelle le backend directement
     let res = null;
     try {
@@ -66,6 +76,7 @@ async function getTikTokData(url, format = 'video') {
         });
         if (data?.status) res = data;
     } catch (_) {}
+
 
     if (res) {
         const thumbnail = res.thumbnail || res.cover || null;
