@@ -128,8 +128,7 @@ async function getSoundCloudData(url) {
 }
 
 async function getPinterestData(url) {
-    // Tentative via snapsave
-    try {
+    const snapTask = async () => {
         const snap = await snapsave(url);
         if (snap?.success && snap.data?.media?.length > 0) {
             const medias = snap.data.media;
@@ -144,15 +143,13 @@ async function getPinterestData(url) {
                 all_media: medias.map(x => ({ url: x.url, type: x.type || 'image' }))
             };
         }
-    } catch {}
-    
-    // Fallback btch
-    try {
+        throw new Error("Snapsave failed");
+    };
+
+    const btchTask = async () => {
         const res = await btch.pinterest(url);
         if (res?.status) {
-            // btch peut renvoyer la data directement dans res.result ou res
             const data = res.result?.result || res.result || res;
-            // On cherche l'url de la video d'abord
             const video_url = data.video_url || data.video || (data.url && data.url.includes('.mp4') ? data.url : null);
             const image_url = data.image || data.image_url || data.url;
             const mediaUrl = video_url || image_url;
@@ -168,9 +165,14 @@ async function getPinterestData(url) {
                 };
             }
         }
-    } catch {}
+        throw new Error("Btch failed");
+    };
 
-    throw new Error("Impossible d'extraire le contenu Pinterest.");
+    try {
+        return await Promise.any([snapTask(), btchTask()]);
+    } catch {
+        throw new Error("Impossible d'extraire le contenu Pinterest.");
+    }
 }
 
 async function getRedditData(url) {
@@ -191,10 +193,9 @@ async function getRedditData(url) {
 }
 
 async function getSocialData(url, platform, format = 'video') {
-    // 1. Snapsave
-    try {
+    const snapTask = async () => {
         const snapRes = await snapsave(url);
-        if (snapRes.success && snapRes.data?.media?.length > 0) {
+        if (snapRes?.success && snapRes.data?.media?.length > 0) {
             const medias = snapRes.data.media;
             const videoMedia = medias.find(m => m.type === 'video');
             const chosen = videoMedia || medias[0];
@@ -207,23 +208,51 @@ async function getSocialData(url, platform, format = 'video') {
                 all_media: medias.map(m => ({ url: m.url, type: m.type || 'video' }))
             };
         }
-    } catch {}
+        throw new Error("Snapsave failed");
+    };
 
-    // 2. Fallback btch
-    const btchRes = await btch.snapsave(url);
-    if (btchRes?.result?.length > 0) {
-        const item = btchRes.result[0];
-        return {
-            title: `${platform} Média`,
-            url: item.url,
-            thumbnail: item.thumbnail || null,
-            platform,
-            media_type: 'video',
-            all_media: btchRes.result.map(r => ({ url: r.url, type: 'video' }))
-        };
+    const btchTask = async () => {
+        const btchRes = await btch.snapsave(url);
+        if (btchRes?.result?.length > 0) {
+            const item = btchRes.result[0];
+            return {
+                title: `${platform} Média`,
+                url: item.url,
+                thumbnail: item.thumbnail || null,
+                platform,
+                media_type: 'video',
+                all_media: btchRes.result.map(r => ({ url: r.url, type: 'video' }))
+            };
+        }
+        throw new Error("Btch snapsave failed");
+    };
+
+    const igdlTask = async () => {
+        if (platform !== 'Instagram') throw new Error("Not Instagram");
+        const igRes = await btch.igdl(url);
+        if (igRes?.result?.length > 0) {
+            const item = igRes.result[0];
+            if (item.url) {
+                return {
+                    title: 'Instagram Média',
+                    url: item.url,
+                    thumbnail: item.thumbnail || null,
+                    platform: 'Instagram',
+                    media_type: 'video',
+                    all_media: igRes.result.map(r => ({ url: r.url, type: 'video' }))
+                };
+            }
+        }
+        throw new Error("Btch igdl failed");
+    };
+
+    try {
+        const tasks = [snapTask(), btchTask()];
+        if (platform === 'Instagram') tasks.push(igdlTask());
+        return await Promise.any(tasks);
+    } catch {
+        throw new Error(`Impossible d'extraire le contenu ${platform}.`);
     }
-
-    throw new Error(`Impossible d'extraire le contenu ${platform}.`);
 }
 
 // ── Handler Vercel ─────────────────────────────────────────────
