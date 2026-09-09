@@ -55,46 +55,42 @@ async function getYouTubeData(url, format = 'video', quality = 'hd') {
     throw new Error("YouTube indisponible. Vérifie le lien ou réessaie.");
 }
 
-async function getTikTokData(url, format = 'video') {
-    // Resolve short URLs first
-    if (url.includes('vm.tiktok.com') || url.includes('vt.tiktok.com')) {
-        try {
-            const res = await axios.get(url, { maxRedirects: 0, validateStatus: s => s >= 200 && s < 400 });
-            if (res.headers.location) url = res.headers.location.split('?')[0];
-        } catch (e) {
-            if (e.response?.headers?.location) url = e.response.headers.location.split('?')[0];
-        }
-    }
+import pkg from '@tobyg74/tiktok-api-dl';
+const { TiktokDL } = pkg;
 
-    // btch.ttdl est cassé (retourne video:[] vide) — on appelle le backend directement
+async function getTikTokData(url, format = 'video') {
     let res = null;
     try {
-        const { data } = await axios.get('https://backend1.tioo.eu.org/ttdl', {
-            params: { url },
-            timeout: 20000,
-            headers: { 'User-Agent': 'Mozilla/5.0 (compatible; MenmaDLX/1.0)' }
-        });
-        if (data?.status) res = data;
-    } catch (_) {}
-
+        const result = await TiktokDL(url, { version: 'v3' });
+        if (result.status === 'success') {
+            res = result.result;
+        } else {
+            const resultV1 = await TiktokDL(url, { version: 'v1' });
+            if (resultV1.status === 'success') res = resultV1.result;
+        }
+    } catch (error) {
+        console.error("Erreur TiktokDL:", error.message);
+    }
 
     if (res) {
-        const thumbnail = res.thumbnail || res.cover || null;
+        const thumbnail = res.cover || res.music_info?.cover || null;
+        
         // Audio demandé
-        if (format === 'audio' && res.audio?.length > 0) {
+        if (format === 'audio' && res.music) {
             return {
-                title: res.title || 'TikTok Audio',
-                url: res.audio[0],
+                title: res.description || 'TikTok Audio',
+                url: typeof res.music === 'string' ? res.music : (res.music.playUrl || res.music[0]),
                 thumbnail,
                 platform: 'TikTok',
                 media_type: 'audio',
                 all_media: null
             };
         }
+        
         // Slides / images
-        if (res.images?.length > 0) {
+        if (res.type === 'image' && res.images?.length > 0) {
             return {
-                title: res.title || 'TikTok Photos',
+                title: res.description || 'TikTok Photos',
                 url: res.images[0],
                 thumbnail,
                 platform: 'TikTok',
@@ -102,11 +98,14 @@ async function getTikTokData(url, format = 'video') {
                 all_media: res.images.map(u => ({ url: u, type: 'image' }))
             };
         }
+        
         // Vidéo par défaut
-        const videoUrl = Array.isArray(res.video) ? res.video[0] : res.video;
+        let videoUrl = res.video?.noWatermark || res.video?.[0] || res.video;
+        if (typeof videoUrl === 'object' && videoUrl.noWatermark) videoUrl = videoUrl.noWatermark;
+        
         if (videoUrl) {
             return {
-                title: res.title || 'TikTok Vidéo',
+                title: res.description || 'TikTok Vidéo',
                 url: videoUrl,
                 thumbnail,
                 platform: 'TikTok',
