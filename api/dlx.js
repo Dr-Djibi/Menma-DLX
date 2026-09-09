@@ -55,65 +55,74 @@ async function getYouTubeData(url, format = 'video', quality = 'hd') {
     throw new Error("YouTube indisponible. Vérifie le lien ou réessaie.");
 }
 
-import pkg from '@tobyg74/tiktok-api-dl';
-const { TiktokDL } = pkg;
+
 
 async function getTikTokData(url, format = 'video') {
-    let res = null;
-    try {
-        const result = await TiktokDL(url, { version: 'v3' });
-        if (result.status === 'success') {
-            res = result.result;
-        } else {
-            const resultV1 = await TiktokDL(url, { version: 'v1' });
-            if (resultV1.status === 'success') res = resultV1.result;
+    // Resolve short URLs first
+    if (url.includes('vm.tiktok.com') || url.includes('vt.tiktok.com')) {
+        try {
+            const res = await axios.get(url, { maxRedirects: 0, validateStatus: s => s >= 200 && s < 400 });
+            if (res.headers.location) url = res.headers.location.split('?')[0];
+        } catch (e) {
+            if (e.response?.headers?.location) url = e.response.headers.location.split('?')[0];
         }
-    } catch (error) {
-        console.error("Erreur TiktokDL:", error.message);
     }
 
-    if (res) {
-        const thumbnail = res.cover || res.music_info?.cover || null;
-        
-        // Audio demandé
-        if (format === 'audio' && res.music) {
-            return {
-                title: res.description || 'TikTok Audio',
-                url: typeof res.music === 'string' ? res.music : (res.music.playUrl || res.music[0]),
-                thumbnail,
-                platform: 'TikTok',
-                media_type: 'audio',
-                all_media: null
-            };
+    try {
+        const { data } = await axios.get(`https://tikwm.com/api/?url=${encodeURIComponent(url)}`, { 
+            headers: { 
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Origin': 'https://tikwm.com', 
+                'Referer': 'https://tikwm.com/' 
+            }, 
+            timeout: 20000 
+        });
+
+        if (data && data.code === 0 && data.data) {
+            const res = data.data;
+            const thumbnail = res.cover || res.origin_cover || null;
+
+            // Audio demandé
+            if (format === 'audio' && res.music) {
+                return {
+                    title: res.title || 'TikTok Audio',
+                    url: res.music,
+                    thumbnail,
+                    platform: 'TikTok',
+                    media_type: 'audio',
+                    all_media: null
+                };
+            }
+
+            // Slides / images
+            if (res.images && res.images.length > 0) {
+                return {
+                    title: res.title || 'TikTok Photos',
+                    url: res.images[0],
+                    thumbnail,
+                    platform: 'TikTok',
+                    media_type: 'image',
+                    all_media: res.images.map(u => ({ url: u, type: 'image' }))
+                };
+            }
+
+            // Vidéo par défaut
+            const videoUrl = res.play || res.wmplay || null;
+            if (videoUrl) {
+                return {
+                    title: res.title || 'TikTok Vidéo',
+                    url: videoUrl,
+                    thumbnail,
+                    platform: 'TikTok',
+                    media_type: 'video',
+                    all_media: null
+                };
+            }
         }
-        
-        // Slides / images
-        if (res.type === 'image' && res.images?.length > 0) {
-            return {
-                title: res.description || 'TikTok Photos',
-                url: res.images[0],
-                thumbnail,
-                platform: 'TikTok',
-                media_type: 'image',
-                all_media: res.images.map(u => ({ url: u, type: 'image' }))
-            };
-        }
-        
-        // Vidéo par défaut
-        let videoUrl = res.video?.noWatermark || res.video?.[0] || res.video;
-        if (typeof videoUrl === 'object' && videoUrl.noWatermark) videoUrl = videoUrl.noWatermark;
-        
-        if (videoUrl) {
-            return {
-                title: res.description || 'TikTok Vidéo',
-                url: videoUrl,
-                thumbnail,
-                platform: 'TikTok',
-                media_type: 'video',
-                all_media: null
-            };
-        }
+    } catch (error) {
+        console.error("[TIKWM ERR]", error.message);
     }
+    
     throw new Error("Impossible d'extraire la vidéo TikTok.");
 }
 
