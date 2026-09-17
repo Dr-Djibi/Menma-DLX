@@ -9,11 +9,14 @@
   },
   "dependencies": {
     "@distube/ytdl-core": "^4.16.12",
+    "@tobyg74/tiktok-api-dl": "^1.3.7",
     "axios": "^1.19.0",
     "btch-downloader": "^6.3.6",
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "fb-downloader-scrapper": "^3.0.1",
     "jimp": "^1.6.1",
-    "snapsave-media-downloader": "^2.4.1"
+    "snapsave-media-downloader": "^2.4.1",
+    "youtubei.js": "^18.0.0"
   }
 }
