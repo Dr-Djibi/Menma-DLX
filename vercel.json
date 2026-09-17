@@ -1,6 +1,9 @@
 {
     "version": 2,
-    "rewrites": [
-        { "source": "/dlx", "destination": "/api/dlx" }
-    ]
+    "functions": {
+        "api/**/*.js": {
+            "maxDuration": 25,
+            "excludeFiles": "node_modules/{typescript,tsup,canvas,jsdom,gifwrap,@jimp,ts-node}/**"
+        }
+    }
 }

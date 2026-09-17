@@ -5,7 +5,7 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 // On importe le handler Vercel (qui gère déjà tout)
-import apiHandler from './api/dlx.js';
+import apiHandler from './api/download.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -15,7 +15,7 @@ app.use(express.json());
 const PORT = process.env.PORT || 3000;
 
 // ─────────────────────────────────────────────────────────────
-// Route API principale (Déléguée à dlx.js)
+// Route API principale (Déléguée à download.js)
 // ─────────────────────────────────────────────────────────────
 app.post('/api/download', async (req, res) => {
     // Le handler Vercel s'attend à recevoir req et res
