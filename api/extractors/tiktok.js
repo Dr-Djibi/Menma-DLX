@@ -1,5 +1,4 @@
 import axios from 'axios';
-import btch from 'btch-downloader';
 import { snapsave } from 'snapsave-media-downloader';
 import { resolveTikTokShortUrl } from './utils.js';
 
@@ -47,23 +46,12 @@ export async function getTikTokData(url, format = 'video') {
         console.warn('[TikTok tikwm WARN]', e.message);
     }
 
-    // ── Tentative 2 : snapsave + btch en parallèle
-    const snapTask = async () => {
-        const snap = await snapsave(url);
-        if (snap?.success && snap.data?.media?.length > 0) {
-            const m = snap.data.media[0];
-            return { title: 'TikTok', url: m.url, thumbnail: snap.data.thumbnail || null, platform: 'TikTok', media_type: m.type || 'video', format: 'mp4', quality: null, all_media: snap.data.media.map(x => ({ url: x.url, type: x.type || 'video' })) };
-        }
-        throw new Error('Snapsave empty');
-    };
+    // ── Tentative 2 : snapsave (fallback)
+    const snap = await snapsave(url);
+    if (snap?.success && snap.data?.media?.length > 0) {
+        const m = snap.data.media[0];
+        return { title: 'TikTok', url: m.url, thumbnail: snap.data.thumbnail || null, platform: 'TikTok', media_type: m.type || 'video', format: 'mp4', quality: null, all_media: snap.data.media.map(x => ({ url: x.url, type: x.type || 'video' })) };
+    }
 
-    const btchTask = async () => {
-        const res = await btch.snapsave(url);
-        if (res?.result?.length > 0) {
-            return { title: 'TikTok', url: res.result[0].url, thumbnail: null, platform: 'TikTok', media_type: 'video', format: 'mp4', quality: null, all_media: res.result.map(r => ({ url: r.url, type: 'video' })) };
-        }
-        throw new Error('btch empty');
-    };
-
-    return await Promise.any([snapTask(), btchTask()]);
+    throw new Error("Impossible d'extraire la vidéo TikTok.");
 }

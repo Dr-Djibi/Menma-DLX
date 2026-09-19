@@ -1,109 +1,548 @@
 <!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MENMA DLX</title>
-    <meta name="description" content="Téléchargeur vidéo universel — TikTok, YouTube, Instagram, Facebook, Pinterest">
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0d1117">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/style.css">
-</head>
-<body>
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
 
-    <!-- Bannière presse-papier (Feature 2) -->
-    <div class="clipboard-banner hidden" id="clipboardBanner">
-        <span id="clipboardBannerText">🔗 Lien détecté</span>
-        <button id="clipboardBannerBtn">Télécharger →</button>
-        <button class="clipboard-banner-close" id="clipboardBannerClose">✕</button>
-    </div>
+<html class="dark" lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Outfit:wght@600;700&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"error":"#ffb4ab","on-tertiary-fixed":"#001a42","tertiary-container":"#4d8eff","on-tertiary-fixed-variant":"#004395","surface-container-low":"#1a1b21","surface":"#121318","on-primary-container":"#340080","on-error":"#690005","on-secondary":"#003640","surface-variant":"#34343a","secondary-fixed":"#acedff","outline-variant":"#494454","tertiary-fixed-dim":"#adc6ff","secondary-fixed-dim":"#4cd7f6","on-primary-fixed-variant":"#5516be","on-tertiary":"#002e6a","on-secondary-container":"#00424e","on-surface-variant":"#cbc3d7","outline":"#958ea0","on-secondary-fixed":"#001f26","tertiary-fixed":"#d8e2ff","on-primary":"#3c0091","surface-dim":"#121318","on-primary-fixed":"#23005c","primary-fixed-dim":"#d0bcff","tertiary":"#adc6ff","on-tertiary-container":"#00285d","surface-tint":"#d0bcff","primary-fixed":"#e9ddff","primary":"#d0bcff","primary-container":"#a078ff","secondary":"#4cd7f6","inverse-primary":"#6d3bd7","secondary-container":"#03b5d3","inverse-surface":"#e3e1e9","on-secondary-fixed-variant":"#004e5c","surface-container-lowest":"#0d0e13","surface-container-high":"#292a2f","background":"#121318","on-background":"#e3e1e9","on-surface":"#e3e1e9","inverse-on-surface":"#2f3036","surface-container-highest":"#34343a","error-container":"#93000a","surface-container":"#1e1f25","on-error-container":"#ffdad6","surface-bright":"#38393f"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-sm":"0.5rem","margin-tablet":"2rem","gutter-tablet":"1.5rem","space-lg":"1.25rem","margin":"1rem","space-xl":"2rem","gutter":"1rem","space-md":"0.75rem","space-xs":"0.25rem"},"fontFamily":{"body-lg":["Geist"],"headline-lg":["Outfit"],"headline-sm":["Outfit"],"label-md":["JetBrains Mono"],"body-md":["Geist"],"label-sm":["JetBrains Mono"],"code-mono":["JetBrains Mono"],"headline-xl":["Outfit"],"body-sm":["Geist"],"headline-xl-mobile":["Outfit"]},"fontSize":{"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.02em","fontWeight":"600"}],"headline-sm":["18px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.05em","fontWeight":"600"}],"body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}],"label-sm":["10px",{"lineHeight":"14px","letterSpacing":"0.08em","fontWeight":"600"}],"code-mono":["13px",{"lineHeight":"18px","letterSpacing":"0.02em","fontWeight":"500"}],"headline-xl":["36px",{"lineHeight":"44px","letterSpacing":"-0.03em","fontWeight":"700"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"headline-xl-mobile":["28px",{"lineHeight":"34px","letterSpacing":"-0.02em","fontWeight":"700"}]}}}}</script></head><body class="bg-surface text-on-surface font-body-md text-body-md min-h-screen flex flex-col antialiased selection:bg-primary selection:text-on-primary"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.25)]"><div class="w-full h-11 px-6 flex items-center justify-between text-on-surface font-label-md text-label-md"><span class="font-medium tracking-tight">9:41</span><div class="h-6 w-28 bg-surface-container-lowest rounded-full flex items-center justify-center"><div class="w-2.5 h-2.5 rounded-full bg-surface-container-high"></div></div><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-[16px]">signal_cellular_4_bar</span><span class="material-symbols-outlined text-[16px]">wifi</span><span class="material-symbols-outlined text-[18px]">battery_charging_full</span></div></div><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shrink-0"><img alt="OmniDL" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VtL5H1iytumEMUQl2d__TqfGUKponFDxDtYhZQDY6ERRyZf6-Pamw6EHJjwzwhRqWF1ObrRaegSArcsJOppViMVC2ks8qAIga_sLR_P3BhKrfG72sAbXW2khfFOMz62yWHMoAzsej-Ummzjk4f8HjgDNfmBWwfdiGZhyi88DIhqze2VKh8guK4Vje4gh_JY0yPzP9hJyO6TktYTNqS8is1X4jNi8VPzc6bZqcaZZCRQ3tmLh9S7UmuPHwu"/></div><span class="font-headline-sm text-headline-sm text-on-surface font-semibold tracking-tight">OmniDL</span></div><div class="flex items-center gap-space-xs"><button aria-label="Historique" class="w-10 h-10 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[20px]">history</span></button><button aria-label="Paramètres" class="w-10 h-10 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[20px]">settings</span></button></div></div></header><main id="page-telechargeur" class="flex-1 w-full bg-surface pt-16 pb-24 px-margin"><div class="flex flex-col w-full space-y-space-lg pb-10">
+<!-- Section Titre & Statut (Header Content) -->
+<div class="flex flex-col gap-1 pt-2"><h1 class="text-[22px] font-semibold tracking-tight text-on-surface">Téléchargement</h1><p class="font-body-sm text-on-surface-variant">Téléchargez vidéos et audios à partir d'un lien.</p></div>
+<!-- Zone de saisie principale (Hero Input) -->
+<section class="flex flex-col gap-space-sm"><div class="relative flex items-center rounded-xl bg-surface-container-low border border-outline-variant/30 p-1.5 focus-within:border-primary transition-colors"><span class="material-symbols-outlined text-outline px-2 text-[20px]">link</span><input class="w-full bg-transparent text-on-surface font-body-md focus:outline-none placeholder:text-outline" id="url-field" placeholder="Coller un lien..." type="text" value="https://www.youtube.com/watch?v=dQw4w9WgXcQ"/><button class="shrink-0 px-3 py-1.5 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md hover:bg-surface-variant transition-colors" id="paste-btn" type="button">Coller</button></div></section>
+<!-- Options de conversion & extraction -->
+<div class="grid grid-cols-2 gap-2 p-1 rounded-xl bg-surface-container-low"><button class="py-2 px-3 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md text-center transition-colors" id="btn-format-video" type="button">Vidéo</button><button class="py-2 px-3 rounded-lg bg-transparent text-on-surface-variant hover:text-on-surface font-label-md text-label-md text-center transition-colors" id="btn-format-audio" type="button">Audio</button></div>
+<!-- CTA Principal d'Extraction -->
+<button class="w-full py-3 px-4 rounded-xl bg-primary text-on-primary font-headline-sm text-[14px] flex items-center justify-center gap-2 hover:opacity-95 active:scale-[0.98] transition-all" id="extract-cta" type="button"><span class="material-symbols-outlined text-[18px]">download</span><span>Télécharger le média</span></button>
+<!-- Carte Résultat d'Extraction (Glassmorphic Preview Card) -->
+<section class="flex flex-col rounded-xl bg-surface-container-low border border-outline-variant/20 p-space-md gap-space-sm"><div class="relative w-full aspect-video rounded-lg overflow-hidden bg-surface-container-lowest"><img alt="Cyberpunk Neo-Tokyo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXAp71ZlGNZ0NUAeL8O7kn2OPTF2x4JkKOPif65SvW66Qia89K1jIBb0D1UBrv5CffPpCLC0QAIGQt_5vGUhFoZ4IXtqaV0GBJOqOovgyj0zvydloBdop93tXncgG11ADuy10YUQJKjPzP41HOtWOXsglGhAZ-Q1IljOCQSsHxPuTYB4nnuoFmCyDMdf1tMUAih50A6yP4h7p4mchK96_J-icwEuPX8gehhoAH_yNqwLtWeUmqPkZTkw"/><div class="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/80 text-white font-label-sm text-label-sm">04:18</div></div><div class="flex flex-col gap-0.5"><h2 class="font-headline-sm text-[15px] text-on-surface truncate">Cyberpunk Neo-Tokyo Cityscape</h2><span class="font-body-sm text-body-sm text-on-surface-variant">NeoVisions • MP4 (1080p)</span></div><button class="w-full py-2.5 px-4 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center justify-center gap-2 hover:bg-surface-variant transition-colors" id="save-device-btn" type="button"><span class="material-symbols-outlined text-[18px]">download_done</span><span>Enregistrer</span></button></section>
+<!-- Panneau Diagnostics Télémétrie / Logs Micro-Terminal -->
+</div>
+<script>
+  (function() {
+    const urlInput = document.getElementById('url-field');
+    const clearBtn = document.getElementById('clear-btn');
+    const pasteBtn = document.getElementById('paste-btn');
+    const btnVideo = document.getElementById('btn-format-video');
+    const btnAudio = document.getElementById('btn-format-audio');
+    const btnHd = document.getElementById('btn-quality-hd');
+    const btnSd = document.getElementById('btn-quality-sd');
+    const extractBtn = document.getElementById('extract-cta');
+    const saveBtn = document.getElementById('save-device-btn');
 
-    <canvas id="confettiCanvas"></canvas>
-    <main class="container glass">
-        <header>
-            <div class="header-row">
-                <h1 class="logo">MENMA <span>DLX</span></h1>
-                <div class="header-actions">
-                    <button class="share-btn" id="shareAppBtn" title="Partager l'appli">🔗</button>
-                    <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème">☀️</button>
-                </div>
-            </div>
-            <p class="subtitle">TikTok · YouTube · Instagram · Facebook · Pinterest</p>
-            <!-- Compteur (Feature 5) -->
-            <div class="dl-counter" id="dlCounter">🔥 <span id="dlCount">0</span> vidéos téléchargées</div>
-        </header>
+    if (clearBtn && urlInput) {
+      clearBtn.addEventListener('click', () => {
+        urlInput.value = '';
+        urlInput.focus();
+      });
+    }
 
-        <form id="downloadForm">
-            <div class="input-wrap">
-                <input
-                    type="url"
-                    id="urlInput"
-                    placeholder="Colle le lien de la vidéo ici…"
-                    autocomplete="off"
-                    autocorrect="off"
-                    spellcheck="false"
-                    required
-                >
-                <button type="button" id="pasteBtn" title="Coller depuis le presse-papier">📋</button>
-            </div>
-            <div id="platformHint" class="platform-hint"></div>
-            
-            <div class="format-toggle">
-                <span class="toggle-label" id="labelVideo">🎬 Vidéo</span>
-                <label class="switch">
-                    <input type="checkbox" id="formatToggle">
-                    <span class="slider round"></span>
-                </label>
-                <span class="toggle-label" id="labelAudio">🎵 Audio</span>
-            </div>
+    if (pasteBtn && urlInput) {
+      pasteBtn.addEventListener('click', async () => {
+        try {
+          if (navigator.clipboard && navigator.clipboard.readText) {
+            const clipText = await navigator.clipboard.readText();
+            if (clipText) urlInput.value = clipText;
+          } else {
+            urlInput.value = 'https://tiktok.com/@cyber/video/729104882194';
+          }
+        } catch (e) {
+          urlInput.value = 'https://tiktok.com/@cyber/video/729104882194';
+        }
+      });
+    }
 
-            <button type="submit" id="submitBtn">
-                <span class="btn-text">⬇️ Obtenir le média</span>
-                <span class="loader hidden"></span>
+    if (btnVideo && btnAudio) {
+      btnVideo.addEventListener('click', () => {
+        btnVideo.className = "flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-gradient-to-r from-primary-container to-secondary-container text-on-primary font-headline-sm text-[14px] shadow-[0_0_12px_rgba(160,120,255,0.4)] transition-all";
+        btnAudio.className = "flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-transparent text-on-surface-variant hover:text-on-surface font-headline-sm text-[14px] transition-all";
+      });
+
+      btnAudio.addEventListener('click', () => {
+        btnAudio.className = "flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-gradient-to-r from-primary-container to-secondary-container text-on-primary font-headline-sm text-[14px] shadow-[0_0_12px_rgba(160,120,255,0.4)] transition-all";
+        btnVideo.className = "flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-transparent text-on-surface-variant hover:text-on-surface font-headline-sm text-[14px] transition-all";
+      });
+    }
+
+    if (btnHd && btnSd) {
+      btnHd.addEventListener('click', () => {
+        btnHd.className = "flex flex-col items-start p-2.5 rounded-xl bg-surface-container-high shadow-[0_0_14px_rgba(76,215,246,0.18)] transition-all";
+        btnSd.className = "flex flex-col items-start p-2.5 rounded-xl bg-surface-container-lowest opacity-75 hover:opacity-100 transition-all";
+      });
+
+      btnSd.addEventListener('click', () => {
+        btnSd.className = "flex flex-col items-start p-2.5 rounded-xl bg-surface-container-high shadow-[0_0_14px_rgba(76,215,246,0.18)] transition-all";
+        btnHd.className = "flex flex-col items-start p-2.5 rounded-xl bg-surface-container-lowest opacity-75 hover:opacity-100 transition-all";
+      });
+    }
+
+    if (extractBtn) {
+      extractBtn.addEventListener('click', () => {
+        const originalContent = extractBtn.innerHTML;
+        extractBtn.innerHTML = `
+          <span class="material-symbols-outlined text-[24px] animate-spin">sync</span>
+          <span>Extraction en cours...</span>
+        `;
+        setTimeout(() => {
+          extractBtn.innerHTML = `
+            <span class="material-symbols-outlined text-[24px]">check_circle</span>
+            <span>Média Actualisé !</span>
+          `;
+          setTimeout(() => {
+            extractBtn.innerHTML = originalContent;
+          }, 1500);
+        }, 1200);
+      });
+    }
+
+    if (saveBtn) {
+      saveBtn.addEventListener('click', () => {
+        const currentHtml = saveBtn.innerHTML;
+        saveBtn.innerHTML = `
+          <span class="material-symbols-outlined text-[20px] animate-bounce">downloading</span>
+          <span>Enregistrement...</span>
+        `;
+        setTimeout(() => {
+          saveBtn.innerHTML = `
+            <span class="material-symbols-outlined text-[20px]">done_all</span>
+            <span>Fichier Enregistré dans Médias</span>
+          `;
+          setTimeout(() => {
+            saveBtn.innerHTML = currentHtml;
+          }, 2000);
+        }, 1400);
+      });
+    }
+  })();
+</script></main>
+<main id="page-historique" class="hidden flex-1 w-full bg-surface pt-16 pb-24 px-margin" class="flex-1 px-5 py-2 overflow-y-auto no-scrollbar space-y-3" data-purpose="history-items-container">
+<!-- List Item 1: Cyberpunk Neo-Tokyo -->
+<article class="bg-app-surface border border-app-border/40 rounded-2xl p-3 flex items-center justify-between gap-3 hover:border-app-border transition-colors">
+<!-- Thumbnail / Format Badge -->
+<div class="relative w-14 h-14 rounded-xl bg-app-elevated flex-shrink-0 flex items-center justify-center overflow-hidden border border-app-border/50">
+<!-- Abstract Video Icon representation -->
+<div class="absolute inset-0 bg-indigo-500/10 flex items-center justify-center">
+<svg class="w-6 h-6 text-app-accent stroke-current" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<polygon points="23 7 16 12 23 17 23 7"></polygon>
+<rect height="14" rx="2" ry="2" width="15" x="1" y="5"></rect>
+</svg>
+</div>
+<span class="absolute bottom-1 right-1 text-[9px] bg-black/70 px-1 py-0.5 rounded text-white font-mono leading-none">MP4</span>
+</div>
+<!-- Meta Information -->
+<div class="flex-1 min-w-0">
+<h2 class="text-xs font-medium text-white truncate" title="Cyberpunk Neo-Tokyo Cityscape">
+            Cyberpunk Neo-Tokyo Cityscape
+          </h2>
+<p class="text-[11px] text-app-muted mt-0.5 tracking-tight flex items-center gap-1.5 flex-wrap">
+<span>1080p</span>
+<span>•</span>
+<span>142 Mo</span>
+</p>
+<p class="text-[10px] text-app-muted/70 mt-0.5">Terminé il y a 20 min</p>
+</div>
+<!-- Action Button -->
+<button aria-label="Options" class="w-8 h-8 rounded-full bg-app-elevated/70 flex items-center justify-center text-app-text hover:bg-app-elevated transition-colors flex-shrink-0">
+<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 24 24">
+<circle cx="12" cy="12" r="1.5"></circle>
+<circle cx="6" cy="12" r="1.5"></circle>
+<circle cx="18" cy="12" r="1.5"></circle>
+</svg>
+</button>
+</article>
+<!-- List Item 2: Lofi Hip Hop Radio -->
+<article class="bg-app-surface border border-app-border/40 rounded-2xl p-3 flex items-center justify-between gap-3 hover:border-app-border transition-colors">
+<!-- Thumbnail / Format Badge -->
+<div class="relative w-14 h-14 rounded-xl bg-app-elevated flex-shrink-0 flex items-center justify-center overflow-hidden border border-app-border/50">
+<div class="absolute inset-0 bg-emerald-500/10 flex items-center justify-center">
+<svg class="w-6 h-6 text-emerald-400 stroke-current" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<path d="M9 18V5l12-2v13"></path>
+<circle cx="6" cy="18" r="3"></circle>
+<circle cx="18" cy="16" r="3"></circle>
+</svg>
+</div>
+<span class="absolute bottom-1 right-1 text-[9px] bg-black/70 px-1 py-0.5 rounded text-white font-mono leading-none">MP3</span>
+</div>
+<!-- Meta Information -->
+<div class="flex-1 min-w-0">
+<h2 class="text-xs font-medium text-white truncate" title="Lofi Hip Hop Radio - Beats to Relax">
+            Lofi Hip Hop Radio - Beats to Relax
+          </h2>
+<p class="text-[11px] text-app-muted mt-0.5 tracking-tight flex items-center gap-1.5 flex-wrap">
+<span>320 kbps</span>
+<span>•</span>
+<span>45 Mo</span>
+</p>
+<p class="text-[10px] text-app-muted/70 mt-0.5">Terminé hier</p>
+</div>
+<!-- Action Button -->
+<button aria-label="Options" class="w-8 h-8 rounded-full bg-app-elevated/70 flex items-center justify-center text-app-text hover:bg-app-elevated transition-colors flex-shrink-0">
+<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 24 24">
+<circle cx="12" cy="12" r="1.5"></circle>
+<circle cx="6" cy="12" r="1.5"></circle>
+<circle cx="18" cy="12" r="1.5"></circle>
+</svg>
+</button>
+</article>
+<!-- List Item 3: Nature Documentary -->
+<article class="bg-app-surface border border-app-border/40 rounded-2xl p-3 flex items-center justify-between gap-3 hover:border-app-border transition-colors">
+<!-- Thumbnail / Format Badge -->
+<div class="relative w-14 h-14 rounded-xl bg-app-elevated flex-shrink-0 flex items-center justify-center overflow-hidden border border-app-border/50">
+<div class="absolute inset-0 bg-indigo-500/10 flex items-center justify-center">
+<svg class="w-6 h-6 text-app-accent stroke-current" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<polygon points="23 7 16 12 23 17 23 7"></polygon>
+<rect height="14" rx="2" ry="2" width="15" x="1" y="5"></rect>
+</svg>
+</div>
+<span class="absolute bottom-1 right-1 text-[9px] bg-black/70 px-1 py-0.5 rounded text-white font-mono leading-none">MP4</span>
+</div>
+<!-- Meta Information -->
+<div class="flex-1 min-w-0">
+<h2 class="text-xs font-medium text-white truncate" title="Nature Documentary 4K Clip">
+            Nature Documentary 4K Clip
+          </h2>
+<p class="text-[11px] text-app-muted mt-0.5 tracking-tight flex items-center gap-1.5 flex-wrap">
+<span>1080p</span>
+<span>•</span>
+<span>320 Mo</span>
+</p>
+<p class="text-[10px] text-app-muted/70 mt-0.5">Terminé hier</p>
+</div>
+<!-- Action Button -->
+<button aria-label="Options" class="w-8 h-8 rounded-full bg-app-elevated/70 flex items-center justify-center text-app-text hover:bg-app-elevated transition-colors flex-shrink-0">
+<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 24 24">
+<circle cx="12" cy="12" r="1.5"></circle>
+<circle cx="6" cy="12" r="1.5"></circle>
+<circle cx="18" cy="12" r="1.5"></circle>
+</svg>
+</button>
+</article>
+<!-- List Item 4: Synthwave Sunset Drive -->
+<article class="bg-app-surface border border-app-border/40 rounded-2xl p-3 flex items-center justify-between gap-3 hover:border-app-border transition-colors">
+<!-- Thumbnail / Format Badge -->
+<div class="relative w-14 h-14 rounded-xl bg-app-elevated flex-shrink-0 flex items-center justify-center overflow-hidden border border-app-border/50">
+<div class="absolute inset-0 bg-emerald-500/10 flex items-center justify-center">
+<svg class="w-6 h-6 text-emerald-400 stroke-current" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<path d="M9 18V5l12-2v13"></path>
+<circle cx="6" cy="18" r="3"></circle>
+<circle cx="18" cy="16" r="3"></circle>
+</svg>
+</div>
+<span class="absolute bottom-1 right-1 text-[9px] bg-black/70 px-1 py-0.5 rounded text-white font-mono leading-none">MP3</span>
+</div>
+<!-- Meta Information -->
+<div class="flex-1 min-w-0">
+<h2 class="text-xs font-medium text-white truncate" title="Synthwave Sunset Drive">
+            Synthwave Sunset Drive
+          </h2>
+<p class="text-[11px] text-app-muted mt-0.5 tracking-tight flex items-center gap-1.5 flex-wrap">
+<span>320 kbps</span>
+<span>•</span>
+<span>12 Mo</span>
+</p>
+<p class="text-[10px] text-app-muted/70 mt-0.5">Il y a 3 jours</p>
+</div>
+<!-- Action Button -->
+<button aria-label="Options" class="w-8 h-8 rounded-full bg-app-elevated/70 flex items-center justify-center text-app-text hover:bg-app-elevated transition-colors flex-shrink-0">
+<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 24 24">
+<circle cx="12" cy="12" r="1.5"></circle>
+<circle cx="6" cy="12" r="1.5"></circle>
+<circle cx="18" cy="12" r="1.5"></circle>
+</svg>
+</button>
+</article>
+</main>
+<main id="page-fichiers" class="hidden flex-1 w-full bg-surface pt-16 pb-24 px-margin" class="px-5 flex-1 space-y-5 pb-6">
+<!-- BEGIN: StorageSummaryCard -->
+<section class="bg-surface rounded-2xl p-4 border border-surfaceBorder/40" data-purpose="storage-summary">
+<div class="flex items-center justify-between mb-2.5">
+<div>
+<span class="text-xs text-neutral-400 block font-normal">Stockage utilisé</span>
+<span class="text-sm font-semibold text-white">4.8 Go <span class="text-neutral-500 font-normal">/ 64 Go</span></span>
+</div>
+<button class="text-xs font-medium text-brand hover:text-brand/80 transition-colors px-2 py-1 rounded bg-brand/10" type="button">
+              Nettoyer le cache
             </button>
-
-            <!-- Barre de progression -->
-            <div class="progress-wrap hidden" id="progressWrap">
-                <div class="progress-bar" id="progressBar"></div>
-                <span class="progress-label" id="progressLabel">Connexion…</span>
-            </div>
-        </form>
-
-        <!-- Historique -->
-        <div class="history-wrap hidden" id="historyWrap">
-            <h3><span class="icon">🕒</span> Récents</h3>
-            <div class="history-gallery" id="historyGallery"></div>
-        </div>
-
-        <!-- Résultat -->
-        <div id="resultCard" class="result-card hidden">
-            <div class="platform-badge" id="platformBadge"></div>
-            <p id="videoTitle"></p>
-            <img id="thumbImg" class="thumb hidden" alt="Aperçu">
-
-            <a id="downloadLink" href="#" class="download-btn" download>💾 Télécharger</a>
-            <div id="allMediaList" class="media-list"></div>
-        </div>
-
-        <div id="errorMsg" class="error-msg hidden"></div>
-
-        <footer>
-            <p>Propulsé par <span style="color: var(--accent); font-weight: 600;">Dr Djibi</span> · <span id="year"></span></p>
-        </footer>
-    </main>
-
-    <script src="/app.js" defer></script>
-    <script>
-        document.getElementById('year').textContent = new Date().getFullYear();
-        if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
-    </script>
-</body>
-</html>
+</div>
+<!-- Progress Bar -->
+<div class="w-full bg-[#111317] h-1.5 rounded-full overflow-hidden flex">
+<div class="bg-brand h-full rounded-full transition-all duration-300" style="width: 14%;"></div>
+</div>
+</section>
+<!-- END: StorageSummaryCard -->
+<!-- BEGIN: FilterPills -->
+<div class="flex items-center space-x-2" data-purpose="category-filters">
+<!-- Active Filter: Tous -->
+<button class="px-3.5 py-1.5 rounded-full text-xs font-medium bg-brand text-white shadow-sm" type="button">
+            Tous <span class="opacity-80 font-normal ml-0.5">(12)</span>
+</button>
+<!-- Filter: Vidéos -->
+<button class="px-3.5 py-1.5 rounded-full text-xs font-medium bg-surface text-neutral-400 hover:text-neutral-200 border border-surfaceBorder/50 transition-colors" type="button">
+            Vidéos <span class="opacity-60 font-normal ml-0.5">(8)</span>
+</button>
+<!-- Filter: Musiques -->
+<button class="px-3.5 py-1.5 rounded-full text-xs font-medium bg-surface text-neutral-400 hover:text-neutral-200 border border-surfaceBorder/50 transition-colors" type="button">
+            Musiques <span class="opacity-60 font-normal ml-0.5">(4)</span>
+</button>
+</div>
+<!-- END: FilterPills -->
+<!-- BEGIN: FileList -->
+<div class="space-y-2.5" data-purpose="stored-files-list">
+<!-- File Item 1: Cyberpunk Neo-Tokyo Cityscape -->
+<div class="bg-surface border border-surfaceBorder/40 rounded-xl p-3.5 flex items-center justify-between group">
+<div class="flex items-center space-x-3 overflow-hidden pr-2">
+<!-- Video File Icon Badge -->
+<div class="w-10 h-10 rounded-lg bg-surfaceAlt border border-surfaceBorder/60 flex items-center justify-center flex-shrink-0 text-brand">
+<svg class="w-5 h-5 stroke-current" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<polygon points="23 7 16 12 23 17 23 7"></polygon>
+<rect height="14" rx="2" ry="2" width="15" x="1" y="5"></rect>
+</svg>
+</div>
+<div class="truncate">
+<p class="text-sm font-medium text-white truncate">Cyberpunk Neo-Tokyo Cityscape.mp4</p>
+<div class="flex items-center space-x-2 text-xs text-neutral-400 mt-0.5">
+<span>142 Mo</span>
+<span class="text-neutral-600">•</span>
+<span>1080p</span>
+<span class="text-neutral-600">•</span>
+<span>Hier</span>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex items-center space-x-1.5 flex-shrink-0">
+<button aria-label="Lire le fichier" class="px-3 py-1.5 rounded-lg bg-surfaceAlt hover:bg-neutral-800 text-xs font-medium text-neutral-200 transition-colors" type="button">
+                Lire
+              </button>
+<button aria-label="Partager" class="p-1.5 rounded-lg text-neutral-400 hover:text-white transition-colors" type="button">
+<svg class="w-4 h-4 stroke-current" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<circle cx="18" cy="5" r="3"></circle>
+<circle cx="6" cy="12" r="3"></circle>
+<circle cx="18" cy="19" r="3"></circle>
+<line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line>
+<line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line>
+</svg>
+</button>
+</div>
+</div>
+<!-- File Item 2: Lofi Hip Hop Radio -->
+<div class="bg-surface border border-surfaceBorder/40 rounded-xl p-3.5 flex items-center justify-between group">
+<div class="flex items-center space-x-3 overflow-hidden pr-2">
+<!-- Audio File Icon Badge -->
+<div class="w-10 h-10 rounded-lg bg-surfaceAlt border border-surfaceBorder/60 flex items-center justify-center flex-shrink-0 text-indigo-400">
+<svg class="w-5 h-5 stroke-current" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<path d="M9 18V5l12-2v13"></path>
+<circle cx="6" cy="18" r="3"></circle>
+<circle cx="18" cy="16" r="3"></circle>
+</svg>
+</div>
+<div class="truncate">
+<p class="text-sm font-medium text-white truncate">Lofi Hip Hop Radio.mp3</p>
+<div class="flex items-center space-x-2 text-xs text-neutral-400 mt-0.5">
+<span>45 Mo</span>
+<span class="text-neutral-600">•</span>
+<span>Audio 320kbps</span>
+<span class="text-neutral-600">•</span>
+<span>14 mai</span>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex items-center space-x-1.5 flex-shrink-0">
+<button aria-label="Lire le fichier" class="px-3 py-1.5 rounded-lg bg-surfaceAlt hover:bg-neutral-800 text-xs font-medium text-neutral-200 transition-colors" type="button">
+                Lire
+              </button>
+<button aria-label="Partager" class="p-1.5 rounded-lg text-neutral-400 hover:text-white transition-colors" type="button">
+<svg class="w-4 h-4 stroke-current" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<circle cx="18" cy="5" r="3"></circle>
+<circle cx="6" cy="12" r="3"></circle>
+<circle cx="18" cy="19" r="3"></circle>
+<line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line>
+<line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line>
+</svg>
+</button>
+</div>
+</div>
+<!-- File Item 3: Nature Documentary 4K -->
+<div class="bg-surface border border-surfaceBorder/40 rounded-xl p-3.5 flex items-center justify-between group">
+<div class="flex items-center space-x-3 overflow-hidden pr-2">
+<div class="w-10 h-10 rounded-lg bg-surfaceAlt border border-surfaceBorder/60 flex items-center justify-center flex-shrink-0 text-brand">
+<svg class="w-5 h-5 stroke-current" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<polygon points="23 7 16 12 23 17 23 7"></polygon>
+<rect height="14" rx="2" ry="2" width="15" x="1" y="5"></rect>
+</svg>
+</div>
+<div class="truncate">
+<p class="text-sm font-medium text-white truncate">Nature Documentary 4K.mp4</p>
+<div class="flex items-center space-x-2 text-xs text-neutral-400 mt-0.5">
+<span>320 Mo</span>
+<span class="text-neutral-600">•</span>
+<span>2160p</span>
+<span class="text-neutral-600">•</span>
+<span>10 mai</span>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex items-center space-x-1.5 flex-shrink-0">
+<button aria-label="Lire le fichier" class="px-3 py-1.5 rounded-lg bg-surfaceAlt hover:bg-neutral-800 text-xs font-medium text-neutral-200 transition-colors" type="button">
+                Lire
+              </button>
+<button aria-label="Partager" class="p-1.5 rounded-lg text-neutral-400 hover:text-white transition-colors" type="button">
+<svg class="w-4 h-4 stroke-current" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<circle cx="18" cy="5" r="3"></circle>
+<circle cx="6" cy="12" r="3"></circle>
+<circle cx="18" cy="19" r="3"></circle>
+<line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line>
+<line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line>
+</svg>
+</button>
+</div>
+</div>
+<!-- File Item 4: Synthwave Sunset Drive -->
+<div class="bg-surface border border-surfaceBorder/40 rounded-xl p-3.5 flex items-center justify-between group">
+<div class="flex items-center space-x-3 overflow-hidden pr-2">
+<div class="w-10 h-10 rounded-lg bg-surfaceAlt border border-surfaceBorder/60 flex items-center justify-center flex-shrink-0 text-indigo-400">
+<svg class="w-5 h-5 stroke-current" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<path d="M9 18V5l12-2v13"></path>
+<circle cx="6" cy="18" r="3"></circle>
+<circle cx="18" cy="16" r="3"></circle>
+</svg>
+</div>
+<div class="truncate">
+<p class="text-sm font-medium text-white truncate">Synthwave Sunset Drive.mp3</p>
+<div class="flex items-center space-x-2 text-xs text-neutral-400 mt-0.5">
+<span>12 Mo</span>
+<span class="text-neutral-600">•</span>
+<span>Audio 192kbps</span>
+<span class="text-neutral-600">•</span>
+<span>02 mai</span>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex items-center space-x-1.5 flex-shrink-0">
+<button aria-label="Lire le fichier" class="px-3 py-1.5 rounded-lg bg-surfaceAlt hover:bg-neutral-800 text-xs font-medium text-neutral-200 transition-colors" type="button">
+                Lire
+              </button>
+<button aria-label="Partager" class="p-1.5 rounded-lg text-neutral-400 hover:text-white transition-colors" type="button">
+<svg class="w-4 h-4 stroke-current" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<circle cx="18" cy="5" r="3"></circle>
+<circle cx="6" cy="12" r="3"></circle>
+<circle cx="18" cy="19" r="3"></circle>
+<line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line>
+<line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line>
+</svg>
+</button>
+</div>
+</div>
+</div>
+<!-- END: FileList -->
+</main>
+<main id="page-parametres" class="hidden flex-1 w-full bg-surface pt-16 pb-24 px-margin" class="flex-1 px-4 pt-4 space-y-5 overflow-y-auto" data-purpose="settings-scroll-view">
+<!-- Section: Téléchargements -->
+<section data-purpose="settings-group-downloads">
+<h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider px-1 mb-2">Téléchargements</h2>
+<div class="bg-[#181b21] border border-[#262a34] rounded-2xl divide-y divide-[#262a34] overflow-hidden">
+<!-- Option: Qualité Vidéo -->
+<div class="p-3.5 flex items-center justify-between">
+<div class="space-y-0.5">
+<span class="text-sm font-medium text-zinc-100 block">Qualité vidéo par défaut</span>
+<span class="text-xs text-zinc-400">Résolution préférée des vidéos</span>
+</div>
+<div class="relative">
+<select class="bg-[#1d2129] border border-[#262a34] text-xs font-medium text-zinc-200 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-brand focus:outline-none pr-7">
+<option selected="">1080p Full HD</option>
+<option>4K Ultra HD</option>
+<option>720p HD</option>
+<option>480p SD</option>
+</select>
+</div>
+</div>
+<!-- Option: Format Audio -->
+<div class="p-3.5 flex items-center justify-between">
+<div class="space-y-0.5">
+<span class="text-sm font-medium text-zinc-100 block">Format audio préféré</span>
+<span class="text-xs text-zinc-400">Extraction de bande son</span>
+</div>
+<div class="relative">
+<select class="bg-[#1d2129] border border-[#262a34] text-xs font-medium text-zinc-200 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-brand focus:outline-none pr-7">
+<option selected="">MP3 320 kbps</option>
+<option>MP3 192 kbps</option>
+<option>M4A / AAC</option>
+<option>FLAC sans perte</option>
+</select>
+</div>
+</div>
+<!-- Option: Emplacement -->
+<div class="p-3.5 flex items-center justify-between cursor-pointer active:bg-zinc-800/40 transition">
+<div class="space-y-0.5 max-w-[200px]">
+<span class="text-sm font-medium text-zinc-100 block">Dossier de destination</span>
+<span class="text-xs text-zinc-400 truncate block">/Téléchargements/OmniDL</span>
+</div>
+<button class="text-xs font-medium text-brand bg-brand/10 hover:bg-brand/20 border border-brand/30 px-2.5 py-1 rounded-lg transition-colors" type="button">
+              Modifier
+            </button>
+</div>
+</div>
+</section>
+<!-- Section: Réseau -->
+<section data-purpose="settings-group-network">
+<h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider px-1 mb-2">Réseau &amp; Données</h2>
+<div class="bg-[#181b21] border border-[#262a34] rounded-2xl divide-y divide-[#262a34] overflow-hidden">
+<!-- Option: Wi-Fi Uniquement (Toggle) -->
+<div class="p-3.5 flex items-center justify-between">
+<div class="space-y-0.5 pr-4">
+<span class="text-sm font-medium text-zinc-100 block">Télécharger en Wi-Fi uniquement</span>
+<span class="text-xs text-zinc-400">Évite d'utiliser le forfait données mobiles</span>
+</div>
+<!-- Custom Toggle -->
+<label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#5e6ad2]"></div>
+</label>
+</div>
+<!-- Option: Téléchargements Simultanés -->
+<div class="p-3.5 flex items-center justify-between">
+<div class="space-y-0.5">
+<span class="text-sm font-medium text-zinc-100 block">Téléchargements simultanés</span>
+<span class="text-xs text-zinc-400">Limite les flux simultanés</span>
+</div>
+<div class="relative">
+<select class="bg-[#1d2129] border border-[#262a34] text-xs font-medium text-zinc-200 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-brand focus:outline-none pr-7">
+<option>1 à la fois</option>
+<option selected="">2 à la fois</option>
+<option>3 à la fois</option>
+<option>5 à la fois</option>
+</select>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Général & Confidentialité -->
+<section data-purpose="settings-group-general">
+<h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider px-1 mb-2">Général &amp; Confidentialité</h2>
+<div class="bg-[#181b21] border border-[#262a34] rounded-2xl divide-y divide-[#262a34] overflow-hidden">
+<!-- Mode Sombre -->
+<div class="p-3.5 flex items-center justify-between">
+<div class="space-y-0.5">
+<span class="text-sm font-medium text-zinc-100 block">Mode sombre</span>
+<span class="text-xs text-zinc-400">Thème Obsidian Stream</span>
+</div>
+<span class="text-xs font-medium text-zinc-400 bg-zinc-800/80 border border-zinc-700/60 px-2.5 py-1 rounded-md">Activé</span>
+</div>
+<!-- Vider le Cache -->
+<div class="p-3.5 flex items-center justify-between">
+<div class="space-y-0.5">
+<span class="text-sm font-medium text-zinc-100 block">Vider le cache</span>
+<span class="text-xs text-zinc-400">Fichiers temporaires &amp; aperçus</span>
+</div>
+<button class="text-xs font-medium text-zinc-300 hover:text-white bg-[#1d2129] hover:bg-zinc-700/60 border border-[#262a34] px-3 py-1.5 rounded-lg active:scale-95 transition-all" type="button">
+              Vider 240 Mo
+            </button>
+</div>
+</div>
+</section>
+<!-- App Info Note -->
+<div class="text-center pt-2 pb-1">
+<p class="text-[11px] text-zinc-500 font-medium tracking-wide">
+          OmniDL v2.1 • Zero-Log &amp; Open Source
+        </p>
+</div>
+</main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/85 backdrop-blur-xl shadow-[0_-1px_12px_rgba(0,0,0,0.35)]" data-active-classes="text-secondary"><div class="h-16 px-margin flex items-center justify-around"><a class="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] gap-0.5 hover:text-on-surface transition-colors duration-150 text-primary" data-path="telechargeur" href="#"><span class="material-symbols-outlined text-[22px]">download</span><span class="font-label-sm text-label-sm">Téléchargeur</span></a><a class="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] gap-0.5 text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="historique" href="#"><span class="material-symbols-outlined text-[22px]">history</span><span class="font-label-sm text-label-sm">Historique</span></a><a class="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] gap-0.5 text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="fichiers" href="#"><span class="material-symbols-outlined text-[22px]">folder_zip</span><span class="font-label-sm text-label-sm">Fichiers</span></a><a class="flex flex-col items-center justify-center min-w-[44px] min-h-[44px] gap-0.5 text-on-surface-variant hover:text-on-surface transition-colors duration-150" data-path="parametres" href="#"><span class="material-symbols-outlined text-[22px]">settings</span><span class="font-label-sm text-label-sm">Paramètres</span></a></div></nav></body></html>

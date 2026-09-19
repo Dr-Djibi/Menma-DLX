@@ -1,6 +1,5 @@
 import { Innertube } from 'youtubei.js';
-import btch from 'btch-downloader';
-import { withRetry, extractYouTubeId } from './utils.js';
+import { extractYouTubeId } from './utils.js';
 
 export async function getYouTubeData(url, format = 'video', quality = 'hd') {
     const videoId = extractYouTubeId(url);
@@ -8,7 +7,6 @@ export async function getYouTubeData(url, format = 'video', quality = 'hd') {
 
     const isAudio = format === 'audio';
 
-    // ── Tentative 1 : youtubei.js (Innertube)
     try {
         const yt = await Innertube.create({ cache: null, generate_session_locally: true });
         const info = await yt.getBasicInfo(videoId, { client: 'ANDROID' });
@@ -16,7 +14,7 @@ export async function getYouTubeData(url, format = 'video', quality = 'hd') {
         const thumbnail = info.basic_info?.thumbnail?.[0]?.url || null;
 
         const streamingData = info.streaming_data;
-        if (!streamingData) throw new Error('Pas de streaming_data');
+        if (!streamingData) throw new Error('Pas de streaming_data (vidéo peut-être bloquée ou privée).');
 
         let selectedFormat = null;
 
@@ -47,7 +45,7 @@ export async function getYouTubeData(url, format = 'video', quality = 'hd') {
             }
         }
 
-        if (!selectedFormat?.url) throw new Error('Aucun format URL disponible via Innertube');
+        if (!selectedFormat?.url) throw new Error('Aucune URL de téléchargement extraite.');
 
         return {
             title,
@@ -59,28 +57,8 @@ export async function getYouTubeData(url, format = 'video', quality = 'hd') {
             quality:    selectedFormat.quality_label || quality,
             all_media:  null,
         };
-    } catch (innertubeErr) {
-        console.warn('[YouTube Innertube WARN]', innertubeErr.message, '→ fallback btch');
+    } catch (err) {
+        console.error('[YouTube Innertube ERR]', err.message);
+        throw new Error("Impossible d'extraire la vidéo YouTube (Peut-être soumise à restriction d'âge).");
     }
-
-    // ── Tentative 2 : btch-downloader (fallback)
-    return await withRetry(async () => {
-        const res = await btch.youtube(url);
-        if (res?.status) {
-            const mediaUrl = isAudio ? res.mp3 : res.mp4;
-            if (mediaUrl) {
-                return {
-                    title:      res.title || 'Vidéo YouTube',
-                    url:        mediaUrl,
-                    thumbnail:  res.thumbnail || null,
-                    platform:   'YouTube',
-                    media_type: isAudio ? 'audio' : 'video',
-                    format:     isAudio ? 'mp3' : 'mp4',
-                    quality,
-                    all_media:  null,
-                };
-            }
-        }
-        throw new Error('btch YouTube: réponse invalide');
-    }, 2, 500);
 }

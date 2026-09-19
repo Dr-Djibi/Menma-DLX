@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>OmniDL - Paramètres</title>
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              DEFAULT: '#5e6ad2',
+              light: '#c8bbf9',
+              dark: '#4550b0',
+              accent: '#d6cbfb'
+            },
+            surface: {
+              base: '#111317',
+              card: '#181b21',
+              cardHover: '#1f232b',
+              input: '#1d2129',
+              border: '#262a34'
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'Geist', 'Segoe UI', 'Roboto', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-layout">
+    /* Remove default appearance for selects on mobile */
+    select {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%238b949e' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 0.5rem center;
+      background-repeat: no-repeat;
+      background-size: 1.25em 1.25em;
+      padding-right: 2rem;
+      -webkit-print-color-adjust: exact;
+      appearance: none;
+    }
+    /* Safe-area insets for modern iOS devices */
+    .pb-safe {
+      padding-bottom: env(safe-area-inset-bottom, 16px);
+    }
+    .pt-safe {
+      padding-top: env(safe-area-inset-top, 12px);
+    }
+  </style>
+</head>
+<body class="bg-[#111317] text-zinc-100 font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-brand selection:text-white">
+<!-- BEGIN: MobileDeviceContainer -->
+<div class="w-full max-w-md mx-auto min-h-screen flex flex-col bg-[#111317] relative pb-24 shadow-2xl">
+<!-- BEGIN: iOSStatusBar -->
+<div class="pt-safe px-7 pt-3 flex justify-between items-center text-xs font-semibold text-zinc-300 select-none tracking-tight">
+<span class="text-sm font-semibold">9:41</span>
+<div class="flex items-center space-x-2">
+<!-- Signal strength -->
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 24 24">
+<path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L12 22l7.03-4.39C20.26 16.07 21 14.12 21 12c0-4.97-4.03-9-9-9zm0 15l-4.5-2.81C6.59 14.16 6 13.14 6 12c0-3.31 2.69-6 6-6s6 2.69 6 6c0 1.14-.59 2.16-1.5 3.19L12 18z"></path>
+</svg>
+<!-- Wi-Fi -->
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 24 24">
+<path d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98A17.89 17.89 0 0012 4zm0 3c3.8 0 7.25 1.46 9.87 3.86L12 18.77 2.13 10.86A14.88 14.88 0 0112 7z"></path>
+</svg>
+<!-- Battery Icon -->
+<div class="w-5 h-2.5 border border-zinc-400 rounded-sm p-0.5 flex items-center">
+<div class="bg-zinc-200 h-full w-full rounded-2xs"></div>
+</div>
+</div>
+</div>
+<!-- END: iOSStatusBar -->
+<!-- BEGIN: MainHeader -->
+<header class="px-5 pt-4 pb-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-2.5">
+<!-- Logo identical to DATA:IMAGE:IMAGE_4 -->
+<div class="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0 bg-[#16181d]">
+<svg class="w-8 h-8" viewbox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<rect fill="#16181d" height="100" rx="22" width="100"></rect>
+<path d="M50 24 L74 38 L74 66 L50 80 L26 66 L26 38 Z" fill="none" stroke="#5e6ad2" stroke-linejoin="round" stroke-width="3"></path>
+<path d="M50 38 L50 62" stroke="#e2e4e9" stroke-linecap="round" stroke-width="3.5"></path>
+<path d="M41 53 L50 62 L59 53" fill="none" stroke="#e2e4e9" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5"></path>
+</svg>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tight text-white leading-none">OmniDL</h1>
+<span class="text-xs text-zinc-400 font-medium tracking-wide">Paramètres</span>
+</div>
+</div>
+<!-- Secondary status info or small action -->
+<div class="flex items-center text-xs text-zinc-400 bg-surface-card px-2.5 py-1 rounded-full border border-surface-border">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block mr-1.5"></span>
+<span>Prêt</span>
+</div>
+</div>
+</header>
+<!-- END: MainHeader -->
+<!-- BEGIN: ContentArea -->
+<main class="flex-1 px-4 pt-4 space-y-5 overflow-y-auto" data-purpose="settings-scroll-view">
+<!-- Section: Téléchargements -->
+<section data-purpose="settings-group-downloads">
+<h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider px-1 mb-2">Téléchargements</h2>
+<div class="bg-[#181b21] border border-[#262a34] rounded-2xl divide-y divide-[#262a34] overflow-hidden">
+<!-- Option: Qualité Vidéo -->
+<div class="p-3.5 flex items-center justify-between">
+<div class="space-y-0.5">
+<span class="text-sm font-medium text-zinc-100 block">Qualité vidéo par défaut</span>
+<span class="text-xs text-zinc-400">Résolution préférée des vidéos</span>
+</div>
+<div class="relative">
+<select class="bg-[#1d2129] border border-[#262a34] text-xs font-medium text-zinc-200 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-brand focus:outline-none pr-7">
+<option selected="">1080p Full HD</option>
+<option>4K Ultra HD</option>
+<option>720p HD</option>
+<option>480p SD</option>
+</select>
+</div>
+</div>
+<!-- Option: Format Audio -->
+<div class="p-3.5 flex items-center justify-between">
+<div class="space-y-0.5">
+<span class="text-sm font-medium text-zinc-100 block">Format audio préféré</span>
+<span class="text-xs text-zinc-400">Extraction de bande son</span>
+</div>
+<div class="relative">
+<select class="bg-[#1d2129] border border-[#262a34] text-xs font-medium text-zinc-200 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-brand focus:outline-none pr-7">
+<option selected="">MP3 320 kbps</option>
+<option>MP3 192 kbps</option>
+<option>M4A / AAC</option>
+<option>FLAC sans perte</option>
+</select>
+</div>
+</div>
+<!-- Option: Emplacement -->
+<div class="p-3.5 flex items-center justify-between cursor-pointer active:bg-zinc-800/40 transition">
+<div class="space-y-0.5 max-w-[200px]">
+<span class="text-sm font-medium text-zinc-100 block">Dossier de destination</span>
+<span class="text-xs text-zinc-400 truncate block">/Téléchargements/OmniDL</span>
+</div>
+<button class="text-xs font-medium text-brand bg-brand/10 hover:bg-brand/20 border border-brand/30 px-2.5 py-1 rounded-lg transition-colors" type="button">
+              Modifier
+            </button>
+</div>
+</div>
+</section>
+<!-- Section: Réseau -->
+<section data-purpose="settings-group-network">
+<h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider px-1 mb-2">Réseau &amp; Données</h2>
+<div class="bg-[#181b21] border border-[#262a34] rounded-2xl divide-y divide-[#262a34] overflow-hidden">
+<!-- Option: Wi-Fi Uniquement (Toggle) -->
+<div class="p-3.5 flex items-center justify-between">
+<div class="space-y-0.5 pr-4">
+<span class="text-sm font-medium text-zinc-100 block">Télécharger en Wi-Fi uniquement</span>
+<span class="text-xs text-zinc-400">Évite d'utiliser le forfait données mobiles</span>
+</div>
+<!-- Custom Toggle -->
+<label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#5e6ad2]"></div>
+</label>
+</div>
+<!-- Option: Téléchargements Simultanés -->
+<div class="p-3.5 flex items-center justify-between">
+<div class="space-y-0.5">
+<span class="text-sm font-medium text-zinc-100 block">Téléchargements simultanés</span>
+<span class="text-xs text-zinc-400">Limite les flux simultanés</span>
+</div>
+<div class="relative">
+<select class="bg-[#1d2129] border border-[#262a34] text-xs font-medium text-zinc-200 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-brand focus:outline-none pr-7">
+<option>1 à la fois</option>
+<option selected="">2 à la fois</option>
+<option>3 à la fois</option>
+<option>5 à la fois</option>
+</select>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Général & Confidentialité -->
+<section data-purpose="settings-group-general">
+<h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider px-1 mb-2">Général &amp; Confidentialité</h2>
+<div class="bg-[#181b21] border border-[#262a34] rounded-2xl divide-y divide-[#262a34] overflow-hidden">
+<!-- Mode Sombre -->
+<div class="p-3.5 flex items-center justify-between">
+<div class="space-y-0.5">
+<span class="text-sm font-medium text-zinc-100 block">Mode sombre</span>
+<span class="text-xs text-zinc-400">Thème Obsidian Stream</span>
+</div>
+<span class="text-xs font-medium text-zinc-400 bg-zinc-800/80 border border-zinc-700/60 px-2.5 py-1 rounded-md">Activé</span>
+</div>
+<!-- Vider le Cache -->
+<div class="p-3.5 flex items-center justify-between">
+<div class="space-y-0.5">
+<span class="text-sm font-medium text-zinc-100 block">Vider le cache</span>
+<span class="text-xs text-zinc-400">Fichiers temporaires &amp; aperçus</span>
+</div>
+<button class="text-xs font-medium text-zinc-300 hover:text-white bg-[#1d2129] hover:bg-zinc-700/60 border border-[#262a34] px-3 py-1.5 rounded-lg active:scale-95 transition-all" type="button">
+              Vider 240 Mo
+            </button>
+</div>
+</div>
+</section>
+<!-- App Info Note -->
+<div class="text-center pt-2 pb-1">
+<p class="text-[11px] text-zinc-500 font-medium tracking-wide">
+          OmniDL v2.1 • Zero-Log &amp; Open Source
+        </p>
+</div>
+</main>
+<!-- END: ContentArea -->
+<!-- BEGIN: BottomNavigationBar -->
+<nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#111317]/95 backdrop-blur-md border-t border-[#262a34] z-50 px-2 py-2" data-purpose="bottom-navigation">
+<div class="grid grid-cols-4 items-center">
+<!-- Nav Item: Téléchargeur -->
+<a class="flex flex-col items-center justify-center py-1 group text-zinc-500 hover:text-zinc-300 transition-colors" href="#">
+<svg class="w-5 h-5 mb-1 stroke-current" fill="none" stroke-width="2" viewbox="0 0 24 24">
+<path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-medium tracking-tight">Téléchargeur</span>
+</a>
+<!-- Nav Item: Historique -->
+<a class="flex flex-col items-center justify-center py-1 group text-zinc-500 hover:text-zinc-300 transition-colors" href="#">
+<svg class="w-5 h-5 mb-1 stroke-current" fill="none" stroke-width="2" viewbox="0 0 24 24">
+<path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-medium tracking-tight">Historique</span>
+</a>
+<!-- Nav Item: Fichiers -->
+<a class="flex flex-col items-center justify-center py-1 group text-zinc-500 hover:text-zinc-300 transition-colors" href="#">
+<svg class="w-5 h-5 mb-1 stroke-current" fill="none" stroke-width="2" viewbox="0 0 24 24">
+<path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-medium tracking-tight">Fichiers</span>
+</a>
+<!-- Nav Item: Paramètres (Actif) -->
+<a class="flex flex-col items-center justify-center py-1 text-white relative" href="#">
+<div class="relative">
+<svg class="w-5 h-5 mb-1 stroke-white fill-transparent" stroke-width="2" viewbox="0 0 24 24">
+<path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<!-- Active indicator dot -->
+<span class="absolute -top-0.5 -right-1 w-1.5 h-1.5 bg-brand rounded-full"></span>
+</div>
+<span class="text-[10px] font-semibold text-white tracking-tight">Paramètres</span>
+</a>
+</div>
+</nav>
+<!-- END: BottomNavigationBar -->
+</div>
+<!-- END: MobileDeviceContainer -->
+</body></html>

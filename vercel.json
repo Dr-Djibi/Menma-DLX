@@ -1,5 +1,13 @@
 {
     "version": 2,
+    "rewrites": [
+        { "source": "/", "destination": "/public/index.html" },
+        { "source": "/style.css", "destination": "/public/style.css" },
+        { "source": "/app.js", "destination": "/public/app.js" },
+        { "source": "/sw.js", "destination": "/public/sw.js" },
+        { "source": "/manifest.json", "destination": "/public/manifest.json" },
+        { "source": "/(.*\\.(png|jpg|jpeg|gif|svg|ico))$", "destination": "/public/$1" }
+    ],
     "functions": {
         "api/**/*.js": {
             "maxDuration": 25,

@@ -1,4 +1,3 @@
-import btch from 'btch-downloader';
 import { snapsave } from 'snapsave-media-downloader';
 import { withRetry } from './utils.js';
 
@@ -37,32 +36,21 @@ export async function getFacebookData(url, format = 'video') {
         console.warn('[Facebook fb-scrapper WARN]', e.message);
     }
 
-    // ── Tentative 2 : snapsave + btch
-    const snapTask = async () => {
-        const snap = await snapsave(url);
-        if (snap?.success && snap.data?.media?.length > 0) {
-            const medias = snap.data.media;
-            const chosen = isAudio
-                ? (medias.find(m => m.type === 'audio') || medias[0])
-                : (medias.find(m => m.type === 'video') || medias[0]);
-            return {
-                title: 'Facebook Média', url: chosen.url,
-                thumbnail: snap.data.thumbnail || null, platform: 'Facebook',
-                media_type: isAudio ? 'audio' : (chosen.type || 'video'),
-                format: isAudio ? 'mp3' : 'mp4', quality: null,
-                all_media: medias.map(m => ({ url: m.url, type: m.type || 'video' })),
-            };
-        }
-        throw new Error('Snapsave Facebook empty');
-    };
+    // ── Tentative 2 : snapsave (fallback)
+    const snap = await snapsave(url);
+    if (snap?.success && snap.data?.media?.length > 0) {
+        const medias = snap.data.media;
+        const chosen = isAudio
+            ? (medias.find(m => m.type === 'audio') || medias[0])
+            : (medias.find(m => m.type === 'video') || medias[0]);
+        return {
+            title: 'Facebook Média', url: chosen.url,
+            thumbnail: snap.data.thumbnail || null, platform: 'Facebook',
+            media_type: isAudio ? 'audio' : (chosen.type || 'video'),
+            format: isAudio ? 'mp3' : 'mp4', quality: null,
+            all_media: medias.map(m => ({ url: m.url, type: m.type || 'video' })),
+        };
+    }
 
-    const btchTask = async () => {
-        const res = await btch.snapsave(url);
-        if (res?.result?.length > 0) {
-            return { title: 'Facebook Média', url: res.result[0].url, thumbnail: null, platform: 'Facebook', media_type: 'video', format: 'mp4', quality: null, all_media: res.result.map(r => ({ url: r.url, type: 'video' })) };
-        }
-        throw new Error('btch Facebook empty');
-    };
-
-    return await Promise.any([snapTask(), btchTask()]);
+    throw new Error("Impossible d'extraire la vidéo Facebook.");
 }
