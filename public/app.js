@@ -1,15 +1,15 @@
-const API_URL = '/api/download';
+const API_URL = '/dlx';
 
-const form = document.body;
-const urlInput = document.getElementById('url-field');
-const submitBtn = document.getElementById('extract-cta');
-const pasteBtn = document.getElementById('paste-btn');
-const resultCard = document.querySelector('section:has(> div > img)');
+const form = document.getElementById('downloadForm');
+const urlInput = document.getElementById('urlInput');
+const submitBtn = document.getElementById('submitBtn');
+const pasteBtn = document.getElementById('pasteBtn');
+const resultCard = document.getElementById('resultCard');
 const errorMsg = document.getElementById('errorMsg');
 const platformBadge = document.getElementById('platformBadge');
-const videoTitle = document.querySelector('h2.font-headline-sm');
-const downloadLink = document.getElementById('save-device-btn');
-const thumbImg = document.querySelector('section:has(> div > img) img');
+const videoTitle = document.getElementById('videoTitle');
+const downloadLink = document.getElementById('downloadLink');
+const thumbImg = document.getElementById('thumbImg');
 const allMediaList = document.getElementById('allMediaList');
 
 // ── Détection live de plateforme dans le champ ──────────────────────
@@ -511,7 +511,7 @@ document.addEventListener('DOMContentLoaded', () => setTimeout(checkClipboardFor
 
 // ── Feature 1: Bouton Partager l'appli ───────────────────────
 document.getElementById('shareAppBtn')?.addEventListener('click', async () => {
-    const title = document.querySelector('h2.font-headline-sm')?.textContent || '';
+    const title = document.getElementById('videoTitle')?.textContent || '';
     const shareData = {
         title: 'MENMA DLX',
         text: `Télécharge tes vidéos TikTok, YouTube, Instagram en 1 clic 🔥`,
