@@ -1,4 +1,4 @@
-const API_URL = '/dlx';
+const API_URL = '/download';
 
 const form = document.getElementById('downloadForm');
 const urlInput = document.getElementById('urlInput');
@@ -103,10 +103,10 @@ function startProgress() {
 
     const steps = [
         { pct: 15, msg: 'Connexion au serveur…', delay: 300 },
-        { pct: 35, msg: 'Extraction du lien…',   delay: 1200 },
-        { pct: 60, msg: 'Analyse du média…',      delay: 2500 },
-        { pct: 80, msg: 'Préparation…',           delay: 4000 },
-        { pct: 92, msg: 'Presque prêt…',          delay: 6000 },
+        { pct: 35, msg: 'Extraction du lien…', delay: 1200 },
+        { pct: 60, msg: 'Analyse du média…', delay: 2500 },
+        { pct: 80, msg: 'Préparation…', delay: 4000 },
+        { pct: 92, msg: 'Presque prêt…', delay: 6000 },
     ];
 
     steps.forEach(({ pct, msg, delay }) => {
@@ -209,7 +209,7 @@ form.addEventListener('submit', async (e) => {
                     a.download = '';
                     a.className = 'media-item-btn';
                     a.textContent = m.type === 'image' ? `🖼️ Image ${i + 1}` : `🎬 Vidéo ${i + 1}`;
-                    a.addEventListener('click', function() {
+                    a.addEventListener('click', function () {
                         const originalText = this.textContent;
                         this.textContent = '⏳ Ouverture...';
                         setTimeout(() => this.textContent = originalText, 3000);
@@ -244,7 +244,7 @@ function showError(msg) {
     errorMsg.classList.remove('hidden');
 }
 
-downloadLink.addEventListener('click', async function(e) {
+downloadLink.addEventListener('click', async function (e) {
     e.preventDefault();
     const originalText = this.textContent;
     this.textContent = '⏳ Préparation…';
@@ -290,7 +290,7 @@ downloadLink.addEventListener('click', async function(e) {
 window.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
     const sharedUrl = params.get('url') || params.get('text');
-    
+
     if (sharedUrl && /https?:\/\//.test(sharedUrl)) {
         // Extraire l'URL si elle est noyée dans du texte
         const urlMatch = sharedUrl.match(/(https?:\/\/[^\s]+)/);
@@ -342,15 +342,15 @@ function renderHistory() {
     if (!historyWrap || !historyGallery) return;
 
     const history = JSON.parse(localStorage.getItem('menmaHistory') || '[]');
-    
+
     if (history.length === 0) {
         historyWrap.classList.add('hidden');
         return;
     }
-    
+
     historyWrap.classList.remove('hidden');
     historyGallery.innerHTML = '';
-    
+
     history.forEach(item => {
         const div = document.createElement('div');
         div.className = 'history-item';
@@ -360,7 +360,7 @@ function renderHistory() {
             form.dispatchEvent(new Event('submit'));
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
-        
+
         let platformIcon = '🌐';
         for (const [key, label] of Object.entries(PLATFORM_ICONS)) {
             if (label.includes(item.platform)) {
@@ -484,7 +484,7 @@ async function checkClipboardForUrl() {
 
         // Auto-hide après 8s
         setTimeout(() => hideBanner(), 8000);
-    } catch {}
+    } catch { }
 }
 
 function hideBanner() {
@@ -526,6 +526,6 @@ document.getElementById('shareAppBtn')?.addEventListener('click', async () => {
             btn.textContent = '✅';
             setTimeout(() => btn.textContent = '🔗', 2000);
         }
-    } catch {}
+    } catch { }
     if (navigator.vibrate) navigator.vibrate(30);
 });
