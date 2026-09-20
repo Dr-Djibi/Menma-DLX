@@ -1,14 +1,10 @@
-// ── Routeur API Vercel Serverless (dlx.js) ─────────────────────
+// ── Routeur API Vercel Serverless ─────────────────────────────
 
 import { getYouTubeData } from './extractors/youtube.js';
 import { getTikTokData } from './extractors/tiktok.js';
 import { getFacebookData } from './extractors/facebook.js';
 import { getInstagramData } from './extractors/instagram.js';
 import { getTwitterData } from './extractors/twitter.js';
-import { getPinterestData } from './extractors/pinterest.js';
-import { getSpotifyData } from './extractors/spotify.js';
-import { getSoundCloudData } from './extractors/soundcloud.js';
-import { getRedditData } from './extractors/reddit.js';
 
 // Tenant Keys (multi-client : bot, site, app)
 const TENANT_KEYS = process.env.TENANT_KEYS
@@ -35,10 +31,6 @@ function detectPlatform(url) {
     if (/instagram\.com/.test(u))                return 'Instagram';
     if (/facebook\.com|fb\.watch/.test(u))       return 'Facebook';
     if (/twitter\.com|x\.com/.test(u))           return 'Twitter';
-    if (/pinterest\.com|pin\.it/.test(u))        return 'Pinterest';
-    if (/open\.spotify\.com/.test(u))            return 'Spotify';
-    if (/soundcloud\.com/.test(u))               return 'SoundCloud';
-    if (/reddit\.com|redd\.it/.test(u))          return 'Reddit';
     return null;
 }
 
