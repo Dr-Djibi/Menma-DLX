@@ -15,7 +15,7 @@ app.use(express.json());
 const PORT = process.env.PORT || 3000;
 
 // ─────────────────────────────────────────────────────────────
-// Route API principale (Déléguée à download.js)
+// Route API principale ( Déléguée à download.js)
 // ─────────────────────────────────────────────────────────────
 app.post('/api/download', async (req, res) => {
     // Le handler Vercel s'attend à recevoir req et res
