@@ -1,10 +1,10 @@
 // ── Routeur API Vercel Serverless ─────────────────────────────
 
-import { getYouTubeData } from './extractors/youtube.js';
-import { getTikTokData } from './extractors/tiktok.js';
-import { getFacebookData } from './extractors/facebook.js';
-import { getInstagramData } from './extractors/instagram.js';
-import { getTwitterData } from './extractors/twitter.js';
+import { getYouTubeData } from '../lib/extractors/youtube.js';
+import { getTikTokData } from '../lib/extractors/tiktok.js';
+import { getFacebookData } from '../lib/extractors/facebook.js';
+import { getInstagramData } from '../lib/extractors/instagram.js';
+import { getTwitterData } from '../lib/extractors/twitter.js';
 
 // Tenant Keys (multi-client : bot, site, app)
 const TENANT_KEYS = process.env.TENANT_KEYS
