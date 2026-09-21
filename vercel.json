@@ -6,7 +6,7 @@
         { "source": "/app.js", "destination": "/public/app.js" },
         { "source": "/sw.js", "destination": "/public/sw.js" },
         { "source": "/manifest.json", "destination": "/public/manifest.json" },
-        { "source": "/(.*\\.(png|jpg|jpeg|gif|svg|ico))$", "destination": "/public/$1" }
+        { "source": "/:file(.*\\.(?:png|jpg|jpeg|gif|svg|ico))", "destination": "/public/:file" }
     ],
     "functions": {
         "api/**/*.js": {
