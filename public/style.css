@@ -225,6 +225,13 @@ button:hover {
     box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
 }
 
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
 /* Loader */
 .loader {
     width: 20px;
