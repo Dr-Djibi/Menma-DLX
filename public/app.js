@@ -354,12 +354,24 @@ function renderHistory() {
     history.forEach(item => {
         const div = document.createElement('div');
         div.className = 'history-item';
-        div.onclick = () => {
+        div.setAttribute('role', 'button');
+        div.setAttribute('tabindex', '0');
+        div.setAttribute('aria-label', `Recharger ${item.title || 'Média'} (${item.platform || 'Média'})`);
+
+        const handleSelect = () => {
             urlInput.value = item.originalUrl;
             urlInput.dispatchEvent(new Event('input'));
             form.dispatchEvent(new Event('submit'));
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
+
+        div.onclick = handleSelect;
+        div.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleSelect();
+            }
+        });
 
         let platformIcon = '🌐';
         for (const [key, label] of Object.entries(PLATFORM_ICONS)) {
@@ -369,11 +381,18 @@ function renderHistory() {
             }
         }
 
+        const altText = `Aperçu de ${item.title || 'média'} (${item.platform || 'Média'})`;
+
         div.innerHTML = `
             <div class="history-platform">${platformIcon}</div>
-            <img class="history-thumb" src="${item.thumbnail}" alt="thumb">
-            <div class="history-title">${item.title}</div>
+            <img class="history-thumb" src="${item.thumbnail}">
+            <div class="history-title"></div>
         `;
+        const img = div.querySelector('.history-thumb');
+        if (img) img.alt = altText;
+        const titleEl = div.querySelector('.history-title');
+        if (titleEl) titleEl.textContent = item.title || '';
+
         historyGallery.appendChild(div);
     });
 }
