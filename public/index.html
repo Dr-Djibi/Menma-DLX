@@ -25,7 +25,7 @@
     <div class="clipboard-banner hidden" id="clipboardBanner">
         <span id="clipboardBannerText">🔗 Lien détecté</span>
         <button id="clipboardBannerBtn">Télécharger →</button>
-        <button class="clipboard-banner-close" id="clipboardBannerClose">✕</button>
+        <button class="clipboard-banner-close" id="clipboardBannerClose" aria-label="Fermer la bannière">✕</button>
     </div>
 
     <canvas id="confettiCanvas"></canvas>
@@ -34,7 +34,7 @@
             <div class="header-row">
                 <h1 class="logo">Omni<span>DL</span></h1>
                 <div class="header-actions">
-                    <button class="share-btn" id="shareAppBtn" title="Partager l'appli">🔗</button>
+                    <button class="share-btn" id="shareAppBtn" title="Partager l'appli" aria-label="Partager l'application">🔗</button>
                     <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème">☀️</button>
                 </div>
             </div>
@@ -45,7 +45,7 @@
 
         <form id="downloadForm">
             <div class="input-wrap">
-                <input type="url" id="urlInput" placeholder="Colle le lien de la vidéo ici…" autocomplete="off"
+                <input type="url" id="urlInput" placeholder="Colle le lien de la vidéo ici…" aria-label="URL de la vidéo" autocomplete="off"
                     autocorrect="off" spellcheck="false" required>
                 <button type="button" id="pasteBtn" title="Coller depuis le presse-papier" aria-label="Coller le lien depuis le presse-papier">📋</button>
             </div>
@@ -54,7 +54,7 @@
             <div class="format-toggle">
                 <span class="toggle-label" id="labelVideo">🎬 Vidéo</span>
                 <label class="switch">
-                    <input type="checkbox" id="formatToggle">
+                    <input type="checkbox" id="formatToggle" aria-label="Basculer le format entre vidéo et audio">
                     <span class="slider round"></span>
                 </label>
                 <span class="toggle-label" id="labelAudio">🎵 Audio</span>

@@ -557,6 +557,10 @@ body.light-mode .platform-badge {
     width: 0;
     height: 0;
 }
+.switch input:focus-visible + .slider {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
 .slider {
     position: absolute;
     cursor: pointer;
