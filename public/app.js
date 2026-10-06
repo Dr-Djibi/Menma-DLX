@@ -354,11 +354,23 @@ function renderHistory() {
     history.forEach(item => {
         const div = document.createElement('div');
         div.className = 'history-item';
-        div.onclick = () => {
+        div.role = 'button';
+        div.tabIndex = 0;
+        div.setAttribute('aria-label', `Média récent: ${item.title}`);
+
+        const loadHistoryItem = () => {
             urlInput.value = item.originalUrl;
             urlInput.dispatchEvent(new Event('input'));
             form.dispatchEvent(new Event('submit'));
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        div.onclick = loadHistoryItem;
+        div.onkeydown = (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                loadHistoryItem();
+            }
         };
 
         let platformIcon = '🌐';
@@ -370,8 +382,8 @@ function renderHistory() {
         }
 
         div.innerHTML = `
-            <div class="history-platform">${platformIcon}</div>
-            <img class="history-thumb" src="${item.thumbnail}" alt="thumb">
+            <div class="history-platform" aria-hidden="true">${platformIcon}</div>
+            <img class="history-thumb" src="${item.thumbnail}" alt="${item.title || 'Aperçu'}">
             <div class="history-title">${item.title}</div>
         `;
         historyGallery.appendChild(div);
