@@ -58,6 +58,15 @@ pasteBtn.addEventListener('click', async () => {
         urlInput.value = text;
         urlInput.dispatchEvent(new Event('input'));
         urlInput.focus();
+
+        pasteBtn.textContent = '✅';
+        pasteBtn.setAttribute('title', 'Collé !');
+        pasteBtn.setAttribute('aria-label', 'Lien collé depuis le presse-papier');
+        setTimeout(() => {
+            pasteBtn.textContent = '📋';
+            pasteBtn.setAttribute('title', 'Coller depuis le presse-papier');
+            pasteBtn.setAttribute('aria-label', 'Coller le lien depuis le presse-papier');
+        }, 1500);
     } catch { urlInput.focus(); }
 });
 
