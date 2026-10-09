@@ -72,9 +72,18 @@ pasteBtn.addEventListener('click', async () => {
 
 // ── Qualité — gestion des boutons ────────────────────────────────────
 const formatToggle = document.getElementById('formatToggle');
+const labelVideo = document.getElementById('labelVideo');
+const labelAudio = document.getElementById('labelAudio');
 const qualityVideo = document.getElementById('qualityVideo');
 const qualityAudio = document.getElementById('qualityAudio');
 let selectedQuality = 'sd';
+
+function updateFormatLabels() {
+    if (!formatToggle) return;
+    const isAudio = formatToggle.checked;
+    if (labelVideo) labelVideo.classList.toggle('active', !isAudio);
+    if (labelAudio) labelAudio.classList.toggle('active', isAudio);
+}
 
 // Chaque groupe de qualité
 document.querySelectorAll('.quality-btn').forEach(btn => {
@@ -87,10 +96,11 @@ document.querySelectorAll('.quality-btn').forEach(btn => {
 });
 
 // Switcher Vidéo ↔ Audio — change les boutons de qualité
-formatToggle.addEventListener('change', () => {
+formatToggle?.addEventListener('change', () => {
     const isAudio = formatToggle.checked;
-    qualityVideo.classList.toggle('hidden', isAudio);
-    qualityAudio.classList.toggle('hidden', !isAudio);
+    updateFormatLabels();
+    if (qualityVideo) qualityVideo.classList.toggle('hidden', isAudio);
+    if (qualityAudio) qualityAudio.classList.toggle('hidden', !isAudio);
     // Reset sélection active
     selectedQuality = isAudio ? '128k' : 'sd';
     document.querySelectorAll('.quality-btn').forEach(b => {
@@ -98,6 +108,8 @@ formatToggle.addEventListener('change', () => {
         if (b.dataset.q === selectedQuality) b.classList.add('active');
     });
 });
+
+document.addEventListener('DOMContentLoaded', updateFormatLabels);
 
 // ── Barre de progression simulée ─────────────────────────────────────
 let progressInterval = null;

@@ -257,7 +257,8 @@ button:hover {
 
 button:focus-visible,
 a:focus-visible,
-input:focus-visible {
+input:focus-visible,
+.history-item:focus-visible {
     outline: 2px solid var(--primary);
     outline-offset: 2px;
 }
@@ -623,13 +624,13 @@ input:checked + .slider:before {
     border-radius: 50%;
 }
 .toggle-label {
-    opacity: 0.8;
-    transition: 0.3s;
+    opacity: 0.6;
+    transition: all 0.2s ease;
 }
-input:checked ~ .toggle-label:last-child {
+.toggle-label.active {
     opacity: 1;
     color: var(--accent);
-    font-weight: bold;
+    font-weight: 600;
 }
 
 /* ── Sélecteur de qualité ─────────────────────────────────── */
