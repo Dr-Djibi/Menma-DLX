@@ -47,14 +47,15 @@
             <div class="input-wrap">
                 <input type="url" id="urlInput" placeholder="Colle le lien de la vidéo ici…" aria-label="URL de la vidéo" autocomplete="off"
                     autocorrect="off" spellcheck="false" required>
+                <button type="button" id="clearBtn" class="clear-btn hidden" title="Effacer le texte" aria-label="Effacer le lien">✕</button>
                 <button type="button" id="pasteBtn" title="Coller depuis le presse-papier" aria-label="Coller le lien depuis le presse-papier">📋</button>
             </div>
-            <div id="platformHint" class="platform-hint"></div>
+            <div id="platformHint" class="platform-hint" aria-live="polite"></div>
 
             <div class="format-toggle">
                 <span class="toggle-label" id="labelVideo">🎬 Vidéo</span>
                 <label class="switch">
-                    <input type="checkbox" id="formatToggle" aria-label="Basculer le format entre vidéo et audio">
+                    <input type="checkbox" id="formatToggle" aria-label="Format : Vidéo">
                     <span class="slider round"></span>
                 </label>
                 <span class="toggle-label" id="labelAudio">🎵 Audio</span>
@@ -66,7 +67,7 @@
             </button>
 
             <!-- Barre de progression -->
-            <div class="progress-wrap hidden" id="progressWrap">
+            <div class="progress-wrap hidden" id="progressWrap" aria-live="polite">
                 <div class="progress-bar" id="progressBar"></div>
                 <span class="progress-label" id="progressLabel">Connexion…</span>
             </div>
@@ -82,7 +83,7 @@
             <div id="allMediaList" class="media-list"></div>
         </div>
 
-        <div id="errorMsg" class="error-msg hidden"></div>
+        <div id="errorMsg" class="error-msg hidden" role="alert" aria-live="assertive"></div>
 
         <!-- Historique -->
         <div class="history-wrap hidden" id="historyWrap">
