@@ -4,6 +4,7 @@ const form = document.getElementById('downloadForm');
 const urlInput = document.getElementById('urlInput');
 const submitBtn = document.getElementById('submitBtn');
 const pasteBtn = document.getElementById('pasteBtn');
+const clearBtn = document.getElementById('clearBtn');
 const resultCard = document.getElementById('resultCard');
 const errorMsg = document.getElementById('errorMsg');
 const platformBadge = document.getElementById('platformBadge');
@@ -29,7 +30,13 @@ const PLATFORM_ICONS = {
 const platformHint = document.getElementById('platformHint');
 
 urlInput.addEventListener('input', () => {
-    const val = urlInput.value.toLowerCase();
+    const rawVal = urlInput.value;
+    const val = rawVal.toLowerCase();
+
+    if (clearBtn) {
+        clearBtn.classList.toggle('hidden', !rawVal.trim());
+    }
+
     let detected = null;
     for (const [key, label] of Object.entries(PLATFORM_ICONS)) {
         if (val.includes(key)) { detected = label; break; }
@@ -44,11 +51,20 @@ urlInput.addEventListener('input', () => {
 
     // Show quality options only for YouTube
     const qualityWrap = document.getElementById('qualityWrap');
-    if (detected === '▶️ YouTube') {
-        qualityWrap.style.display = 'flex';
-    } else {
-        qualityWrap.style.display = 'none';
+    if (qualityWrap) {
+        if (detected === '▶️ YouTube') {
+            qualityWrap.style.display = 'flex';
+        } else {
+            qualityWrap.style.display = 'none';
+        }
     }
+});
+
+// ── Bouton effacer ───────────────────────────────────────────────────
+clearBtn?.addEventListener('click', () => {
+    urlInput.value = '';
+    urlInput.dispatchEvent(new Event('input'));
+    urlInput.focus();
 });
 
 // ── Bouton coller ────────────────────────────────────────────────────
