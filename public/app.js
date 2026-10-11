@@ -2,6 +2,7 @@ const API_URL = '/download';
 
 const form = document.getElementById('downloadForm');
 const urlInput = document.getElementById('urlInput');
+const clearBtn = document.getElementById('clearBtn');
 const submitBtn = document.getElementById('submitBtn');
 const pasteBtn = document.getElementById('pasteBtn');
 const resultCard = document.getElementById('resultCard');
@@ -30,6 +31,9 @@ const platformHint = document.getElementById('platformHint');
 
 urlInput.addEventListener('input', () => {
     const val = urlInput.value.toLowerCase();
+    if (clearBtn) {
+        clearBtn.classList.toggle('hidden', !urlInput.value);
+    }
     let detected = null;
     for (const [key, label] of Object.entries(PLATFORM_ICONS)) {
         if (val.includes(key)) { detected = label; break; }
@@ -44,11 +48,20 @@ urlInput.addEventListener('input', () => {
 
     // Show quality options only for YouTube
     const qualityWrap = document.getElementById('qualityWrap');
-    if (detected === '▶️ YouTube') {
-        qualityWrap.style.display = 'flex';
-    } else {
-        qualityWrap.style.display = 'none';
+    if (qualityWrap) {
+        if (detected === '▶️ YouTube') {
+            qualityWrap.style.display = 'flex';
+        } else {
+            qualityWrap.style.display = 'none';
+        }
     }
+});
+
+// ── Bouton effacer ───────────────────────────────────────────────────
+clearBtn?.addEventListener('click', () => {
+    urlInput.value = '';
+    urlInput.dispatchEvent(new Event('input'));
+    urlInput.focus();
 });
 
 // ── Bouton coller ────────────────────────────────────────────────────
@@ -83,6 +96,7 @@ function updateFormatLabels() {
     const isAudio = formatToggle.checked;
     if (labelVideo) labelVideo.classList.toggle('active', !isAudio);
     if (labelAudio) labelAudio.classList.toggle('active', isAudio);
+    formatToggle.setAttribute('aria-label', isAudio ? 'Format : Audio' : 'Format : Vidéo');
 }
 
 // Chaque groupe de qualité
