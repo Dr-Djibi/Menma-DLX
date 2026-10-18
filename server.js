@@ -4,8 +4,9 @@ import { createReadStream } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
-// On importe le handler Vercel (qui gère déjà tout)
+// On importe les handlers Vercel
 import apiHandler from './api/download.js';
+import proxyHandler from './api/proxy.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -15,29 +16,20 @@ app.use(express.json());
 const PORT = process.env.PORT || 3000;
 
 // ─────────────────────────────────────────────────────────────
-// Route API principale ( Déléguée à download.js)
+// Routes API
 // ─────────────────────────────────────────────────────────────
-app.post('/api/download', async (req, res) => {
-    // Le handler Vercel s'attend à recevoir req et res
+app.post(['/api/download', '/download'], async (req, res) => {
     return await apiHandler(req, res);
+});
+
+app.get('/api/proxy', async (req, res) => {
+    return await proxyHandler(req, res);
 });
 
 // ─────────────────────────────────────────────────────────────
 // Fichiers statiques
 // ─────────────────────────────────────────────────────────────
-const staticFiles = {
-    '/style.css':     { path: 'public/style.css',     mime: 'text/css' },
-    '/app.js':        { path: 'public/app.js',         mime: 'application/javascript' },
-    '/sw.js':         { path: 'public/sw.js',          mime: 'application/javascript' },
-    '/manifest.json': { path: 'public/manifest.json',  mime: 'application/json' },
-};
-
-for (const [route, { path: filePath, mime }] of Object.entries(staticFiles)) {
-    app.get(route, (req, res) => {
-        res.setHeader('Content-Type', mime);
-        createReadStream(join(__dirname, filePath)).pipe(res);
-    });
-}
+app.use(express.static(join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
     res.setHeader('Content-Type', 'text/html');

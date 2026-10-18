@@ -1,371 +1,389 @@
-const API_URL = '/download';
+// ═══════════════════════════════════════════════════════════════════════════════
+// OmniDL — Application Client
+// ═══════════════════════════════════════════════════════════════════════════════
 
+const API_URL = '/api/download';
+
+// Éléments du DOM
 const form = document.getElementById('downloadForm');
 const urlInput = document.getElementById('urlInput');
 const clearBtn = document.getElementById('clearBtn');
 const submitBtn = document.getElementById('submitBtn');
 const pasteBtn = document.getElementById('pasteBtn');
-const resultCard = document.getElementById('resultCard');
-const errorMsg = document.getElementById('errorMsg');
-const platformBadge = document.getElementById('platformBadge');
-const videoTitle = document.getElementById('videoTitle');
-const downloadLink = document.getElementById('downloadLink');
-const thumbImg = document.getElementById('thumbImg');
-const allMediaList = document.getElementById('allMediaList');
-
-// ── Détection live de plateforme dans le champ ──────────────────────
-const PLATFORM_ICONS = {
-    youtube: '▶️ YouTube',
-    youtu: '▶️ YouTube',
-    tiktok: '🎵 TikTok',
-    instagram: '📸 Instagram',
-    facebook: '👤 Facebook',
-    'fb.watch': '👤 Facebook',
-    'twitter': '🐦 X (Twitter)',
-    'x.com': '🐦 X (Twitter)',
-    'pinterest.com': '📌 Pinterest',
-    'pin.it': '📌 Pinterest',
-};
-
 const platformHint = document.getElementById('platformHint');
 
-urlInput.addEventListener('input', () => {
-    const val = urlInput.value.toLowerCase();
-    if (clearBtn) {
-        clearBtn.classList.toggle('hidden', !urlInput.value);
-    }
-    let detected = null;
-    for (const [key, label] of Object.entries(PLATFORM_ICONS)) {
-        if (val.includes(key)) { detected = label; break; }
-    }
-    if (platformHint) {
-        platformHint.textContent = detected ? `✓ ${detected} détecté` : '';
-        platformHint.className = detected ? 'platform-hint visible' : 'platform-hint';
-    }
-    // Reset results when input changes
-    resultCard.classList.add('hidden');
-    errorMsg.classList.add('hidden');
+// Contrôles de format et qualité
+const btnFormatVideo = document.getElementById('btnFormatVideo');
+const btnFormatAudio = document.getElementById('btnFormatAudio');
+const formatToggle = document.getElementById('formatToggle');
+const qualityWrap = document.getElementById('qualityWrap');
+const qualityVideo = document.getElementById('qualityVideo');
+const qualityAudio = document.getElementById('qualityAudio');
 
-    // Show quality options only for YouTube
-    const qualityWrap = document.getElementById('qualityWrap');
-    if (qualityWrap) {
-        if (detected === '▶️ YouTube') {
-            qualityWrap.style.display = 'flex';
+// Carte de résultats
+const resultCard = document.getElementById('resultCard');
+const platformBadge = document.getElementById('platformBadge');
+const mediaTypeTag = document.getElementById('mediaTypeTag');
+const videoTitle = document.getElementById('videoTitle');
+const thumbWrap = document.getElementById('thumbWrap');
+const downloadLink = document.getElementById('downloadLink');
+const downloadBtnText = document.getElementById('downloadBtnText');
+const previewLink = document.getElementById('previewLink');
+const copyLinkBtn = document.getElementById('copyLinkBtn');
+const allMediaContainer = document.getElementById('allMediaContainer');
+const allMediaList = document.getElementById('allMediaList');
+const errorMsg = document.getElementById('errorMsg');
+
+let currentDownloadUrl = '';
+let selectedQuality = 'hd';
+let selectedFormat = 'video';
+
+// ── Détection live de la plateforme ──────────────────────────────────
+const PLATFORM_ICONS = {
+    'youtube.com': { name: 'YouTube', icon: '▶️' },
+    'youtu.be': { name: 'YouTube', icon: '▶️' },
+    'tiktok.com': { name: 'TikTok', icon: '🎵' },
+    'instagram.com': { name: 'Instagram', icon: '📸' },
+    'facebook.com': { name: 'Facebook', icon: '👤' },
+    'fb.watch': { name: 'Facebook', icon: '👤' },
+    'twitter.com': { name: 'X / Twitter', icon: '🐦' },
+    'x.com': { name: 'X / Twitter', icon: '🐦' },
+    'pinterest.com': { name: 'Pinterest', icon: '📌' },
+    'pin.it': { name: 'Pinterest', icon: '📌' },
+    'spotify.com': { name: 'Spotify', icon: '🎧' },
+    'soundcloud.com': { name: 'SoundCloud', icon: '📻' },
+};
+
+function detectPlatformFromUrl(val) {
+    const lower = val.toLowerCase();
+    for (const [domain, data] of Object.entries(PLATFORM_ICONS)) {
+        if (lower.includes(domain)) return data;
+    }
+    return null;
+}
+
+urlInput?.addEventListener('input', () => {
+    const val = urlInput.value.trim();
+    if (clearBtn) {
+        clearBtn.classList.toggle('hidden', val.length === 0);
+    }
+
+    const detected = detectPlatformFromUrl(val);
+    if (platformHint) {
+        if (detected) {
+            platformHint.textContent = `✓ ${detected.icon} ${detected.name} détecté`;
+            platformHint.classList.add('visible');
         } else {
-            qualityWrap.style.display = 'none';
+            platformHint.textContent = '';
+            platformHint.classList.remove('visible');
         }
     }
+
+    // Afficher les options de qualité pour YouTube
+    if (qualityWrap) {
+        if (detected && detected.name === 'YouTube') {
+            qualityWrap.classList.add('visible');
+        } else {
+            qualityWrap.classList.remove('visible');
+        }
+    }
+
+    // Réinitialiser les cartes
+    resultCard?.classList.add('hidden');
+    errorMsg?.classList.add('hidden');
 });
 
-// ── Bouton effacer ───────────────────────────────────────────────────
+// ── Bouton effacer le champ ──────────────────────────────────────────
 clearBtn?.addEventListener('click', () => {
     urlInput.value = '';
     urlInput.dispatchEvent(new Event('input'));
     urlInput.focus();
 });
 
-// ── Bouton coller ────────────────────────────────────────────────────
-pasteBtn.addEventListener('click', async () => {
+// ── Bouton coller depuis le presse-papier ────────────────────────────
+pasteBtn?.addEventListener('click', async () => {
     try {
         const text = await navigator.clipboard.readText();
-        urlInput.value = text;
-        urlInput.dispatchEvent(new Event('input'));
+        if (text) {
+            urlInput.value = text.trim();
+            urlInput.dispatchEvent(new Event('input'));
+            urlInput.focus();
+
+            pasteBtn.textContent = '✅';
+            pasteBtn.setAttribute('title', 'Collé !');
+            pasteBtn.setAttribute('aria-label', 'Lien collé depuis le presse-papier');
+            setTimeout(() => {
+                pasteBtn.textContent = '📋';
+                pasteBtn.setAttribute('title', 'Coller depuis le presse-papier');
+                pasteBtn.setAttribute('aria-label', 'Coller le lien depuis le presse-papier');
+            }, 1500);
+        }
+    } catch {
         urlInput.focus();
-
-        pasteBtn.textContent = '✅';
-        pasteBtn.setAttribute('title', 'Collé !');
-        pasteBtn.setAttribute('aria-label', 'Lien collé depuis le presse-papier');
-        setTimeout(() => {
-            pasteBtn.textContent = '📋';
-            pasteBtn.setAttribute('title', 'Coller depuis le presse-papier');
-            pasteBtn.setAttribute('aria-label', 'Coller le lien depuis le presse-papier');
-        }, 1500);
-    } catch { urlInput.focus(); }
+    }
 });
 
-// ── Qualité — gestion des boutons ────────────────────────────────────
-const formatToggle = document.getElementById('formatToggle');
-const labelVideo = document.getElementById('labelVideo');
-const labelAudio = document.getElementById('labelAudio');
-const qualityVideo = document.getElementById('qualityVideo');
-const qualityAudio = document.getElementById('qualityAudio');
-let selectedQuality = 'sd';
+// ── Sélecteur de format segmenté (Vidéo / Audio) ─────────────────────
+function setFormat(format) {
+    selectedFormat = format;
+    const isAudio = format === 'audio';
 
-function updateFormatLabels() {
-    if (!formatToggle) return;
-    const isAudio = formatToggle.checked;
-    if (labelVideo) labelVideo.classList.toggle('active', !isAudio);
-    if (labelAudio) labelAudio.classList.toggle('active', isAudio);
-    formatToggle.setAttribute('aria-label', isAudio ? 'Format : Audio' : 'Format : Vidéo');
-}
+    if (btnFormatVideo) {
+        btnFormatVideo.classList.toggle('active', !isAudio);
+        btnFormatVideo.setAttribute('aria-checked', !isAudio ? 'true' : 'false');
+    }
+    if (btnFormatAudio) {
+        btnFormatAudio.classList.toggle('active', isAudio);
+        btnFormatAudio.setAttribute('aria-checked', isAudio ? 'true' : 'false');
+    }
+    if (formatToggle) {
+        formatToggle.checked = isAudio;
+    }
 
-// Chaque groupe de qualité
-document.querySelectorAll('.quality-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        const group = btn.closest('.quality-group');
-        group.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        selectedQuality = btn.dataset.q;
-    });
-});
-
-// Switcher Vidéo ↔ Audio — change les boutons de qualité
-formatToggle?.addEventListener('change', () => {
-    const isAudio = formatToggle.checked;
-    updateFormatLabels();
     if (qualityVideo) qualityVideo.classList.toggle('hidden', isAudio);
     if (qualityAudio) qualityAudio.classList.toggle('hidden', !isAudio);
-    // Reset sélection active
-    selectedQuality = isAudio ? '128k' : 'sd';
+
+    selectedQuality = isAudio ? '320k' : 'hd';
     document.querySelectorAll('.quality-btn').forEach(b => {
         b.classList.remove('active');
         if (b.dataset.q === selectedQuality) b.classList.add('active');
     });
+}
+
+btnFormatVideo?.addEventListener('click', () => setFormat('video'));
+btnFormatAudio?.addEventListener('click', () => setFormat('audio'));
+
+// Gestion des boutons de qualité
+document.querySelectorAll('.quality-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const group = btn.closest('.quality-group');
+        group?.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedQuality = btn.dataset.q || 'hd';
+    });
 });
 
-document.addEventListener('DOMContentLoaded', updateFormatLabels);
-
-// ── Barre de progression simulée ─────────────────────────────────────
-let progressInterval = null;
+// ── Barre de progression ─────────────────────────────────────────────
+let progressTimer = null;
 
 function startProgress() {
     const wrap = document.getElementById('progressWrap');
     const bar = document.getElementById('progressBar');
     const label = document.getElementById('progressLabel');
 
+    if (!wrap || !bar || !label) return;
+
     wrap.classList.remove('hidden');
-    bar.style.width = '0%';
+    bar.style.width = '10%';
+    label.textContent = 'Connexion au serveur…';
 
     const steps = [
-        { pct: 15, msg: 'Connexion au serveur…', delay: 300 },
-        { pct: 35, msg: 'Extraction du lien…', delay: 1200 },
-        { pct: 60, msg: 'Analyse du média…', delay: 2500 },
-        { pct: 80, msg: 'Préparation…', delay: 4000 },
-        { pct: 92, msg: 'Presque prêt…', delay: 6000 },
+        { pct: 30, msg: 'Extraction du flux…', delay: 400 },
+        { pct: 60, msg: 'Analyse du média…', delay: 1500 },
+        { pct: 85, msg: 'Préparation du fichier…', delay: 3000 },
     ];
 
     steps.forEach(({ pct, msg, delay }) => {
         setTimeout(() => {
-            bar.style.width = pct + '%';
-            label.textContent = msg;
+            if (!wrap.classList.contains('hidden')) {
+                bar.style.width = pct + '%';
+                label.textContent = msg;
+            }
         }, delay);
     });
 }
 
 function finishProgress(success = true) {
+    const wrap = document.getElementById('progressWrap');
     const bar = document.getElementById('progressBar');
     const label = document.getElementById('progressLabel');
-    const wrap = document.getElementById('progressWrap');
+
+    if (!wrap || !bar || !label) return;
 
     bar.style.width = '100%';
-    label.textContent = success ? '✅ Prêt !' : '❌ Erreur';
+    label.textContent = success ? '✅ Média prêt !' : '❌ Échec';
     setTimeout(() => {
         wrap.classList.add('hidden');
         bar.style.width = '0%';
     }, 1200);
 }
 
-// ── Soumission du formulaire ─────────────────────────────────────
-form.addEventListener('submit', async (e) => {
+// ── Soumission du formulaire ─────────────────────────────────────────
+form?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    resultCard.classList.add('hidden');
-    errorMsg.classList.add('hidden');
-    allMediaList.innerHTML = '';
-    thumbImg.classList.add('hidden');
+    const rawUrl = urlInput.value.trim();
+    if (!rawUrl) return;
 
-    submitBtn.querySelector('.btn-text').textContent = '⬇️ Télécharger';
-    submitBtn.querySelector('.loader').classList.remove('hidden');
-    submitBtn.querySelector('.btn-text').classList.add('hidden');
+    resultCard?.classList.add('hidden');
+    errorMsg?.classList.add('hidden');
+    if (thumbWrap) {
+        thumbWrap.innerHTML = '';
+        thumbWrap.classList.add('hidden');
+    }
+    if (allMediaList) allMediaList.innerHTML = '';
+    allMediaContainer?.classList.add('hidden');
+
+    const btnText = submitBtn.querySelector('.btn-text');
+    const loader = submitBtn.querySelector('.loader');
+
+    btnText?.classList.add('hidden');
+    loader?.classList.remove('hidden');
     submitBtn.disabled = true;
 
     startProgress();
 
     try {
-        const isAudio = formatToggle?.checked;
         const res = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                url: urlInput.value.trim(),
-                format: isAudio ? 'audio' : 'video',
+                url: rawUrl,
+                format: selectedFormat,
                 quality: selectedQuality
             })
         });
 
         const data = await res.json();
 
-        if (data.success) {
+        if (data.success && data.download_url) {
             finishProgress(true);
             incrementCount();
             hideBanner();
-            saveHistory(data, urlInput.value.trim());
+            saveHistory(data, rawUrl);
+
             // Badge plateforme
-            const icons = { YouTube: '▶️', TikTok: '🎵', Instagram: '📸', Facebook: '👤', Twitter: '🐦', Spotify: '🎵', SoundCloud: '🎧', Pinterest: '📌' };
-            platformBadge.textContent = (icons[data.platform] || '🌐') + ' ' + data.platform;
+            const platformInfo = detectPlatformFromUrl(rawUrl) || { name: data.platform || 'Média', icon: '🌐' };
+            if (platformBadge) {
+                platformBadge.textContent = `${platformInfo.icon} ${data.platform || platformInfo.name}`;
+            }
 
-            // Titre
-            videoTitle.textContent = data.title || 'Prêt !';
+            // Tag de format
+            if (mediaTypeTag) {
+                mediaTypeTag.textContent = data.format ? data.format.toUpperCase() : (data.media_type === 'audio' ? 'MP3' : 'MP4');
+            }
 
-            // Thumbnail si disponible (uniquement si URL thumbnail réelle)
-            if (data.thumbnail && data.thumbnail !== data.download_url) {
-                thumbImg.src = '';
-                thumbImg.classList.add('hidden');
-                const img = new Image();
+            // Titre du média
+            const cleanTitle = (data.title || 'Média').trim();
+            if (videoTitle) {
+                videoTitle.textContent = cleanTitle;
+            }
+
+            // Thumbnail dynamique (créé proprement sans balise vide statique)
+            if (data.thumbnail && data.thumbnail !== data.download_url && thumbWrap) {
+                thumbWrap.innerHTML = '';
+                const img = document.createElement('img');
+                img.className = 'thumb';
+                img.alt = `Aperçu de ${cleanTitle}`;
+                img.loading = 'lazy';
                 img.onload = () => {
-                    thumbImg.src = data.thumbnail;
-                    thumbImg.classList.remove('hidden');
-                };
-                img.onerror = () => {
-                    thumbImg.classList.add('hidden');
+                    thumbWrap.classList.remove('hidden');
                 };
                 img.src = data.thumbnail;
-            } else {
-                thumbImg.classList.add('hidden');
+                thumbWrap.appendChild(img);
             }
 
-            // Lien de téléchargement
-            downloadLink.href = data.download_url;
-            downloadLink.removeAttribute('target');
-            if (data.media_type === 'audio') {
-                downloadLink.textContent = '🎵 Télécharger l\'audio';
-            } else if (data.media_type === 'image') {
-                downloadLink.textContent = '🖼️ Télécharger l\'image';
-            } else {
-                downloadLink.textContent = '💾 Télécharger la vidéo';
+            // Préparation des URLs de téléchargement et d'aperçu
+            currentDownloadUrl = data.download_url;
+            const ext = data.media_type === 'audio' ? '.mp3' : (data.media_type === 'image' ? '.jpg' : '.mp4');
+            const safeFilename = cleanTitle.replace(/[/\\?%*:|"<>]/g, '-').slice(0, 100) + ext;
+            const proxyDownloadUrl = `/api/proxy?url=${encodeURIComponent(data.download_url)}&filename=${encodeURIComponent(safeFilename)}`;
+
+            // Bouton Télécharger (utilise le proxy avec en-têtes d'attachement direct)
+            if (downloadLink) {
+                downloadLink.href = proxyDownloadUrl;
+                downloadLink.download = safeFilename;
+                if (downloadBtnText) {
+                    downloadBtnText.textContent = data.media_type === 'audio' ? 'Télécharger l\'audio (MP3)' : 'Télécharger le fichier (MP4)';
+                }
             }
 
-            // Carrousel Instagram (all_media)
-            if (data.all_media && data.all_media.length > 1) {
+            // Lien direct d'aperçu
+            if (previewLink) {
+                previewLink.href = data.download_url;
+            }
+
+            // Multi-médias / Carrousel
+            if (data.all_media && data.all_media.length > 1 && allMediaList && allMediaContainer) {
+                allMediaList.innerHTML = '';
                 data.all_media.forEach((m, i) => {
-                    const a = document.createElement('a');
-                    a.href = m.url;
-                    a.target = '_blank';
-                    a.download = '';
-                    a.className = 'media-item-btn';
-                    a.textContent = m.type === 'image' ? `🖼️ Image ${i + 1}` : `🎬 Vidéo ${i + 1}`;
-                    a.addEventListener('click', function () {
-                        const originalText = this.textContent;
-                        this.textContent = '⏳ Ouverture...';
-                        setTimeout(() => this.textContent = originalText, 3000);
-                    });
-                    allMediaList.appendChild(a);
+                    const itemExt = m.type === 'image' ? '.jpg' : '.mp4';
+                    const itemFilename = `${safeFilename.replace(/\.[^/.]+$/, '')}_${i + 1}${itemExt}`;
+                    const itemProxyUrl = `/api/proxy?url=${encodeURIComponent(m.url)}&filename=${encodeURIComponent(itemFilename)}`;
+
+                    const itemBtn = document.createElement('a');
+                    itemBtn.href = itemProxyUrl;
+                    itemBtn.download = itemFilename;
+                    itemBtn.className = 'media-item-btn';
+                    itemBtn.textContent = m.type === 'image' ? `🖼️ Image ${i + 1}` : `🎬 Vidéo ${i + 1}`;
+                    allMediaList.appendChild(itemBtn);
                 });
+                allMediaContainer.classList.remove('hidden');
             }
 
-            resultCard.classList.remove('hidden');
-            if (navigator.vibrate) navigator.vibrate(50);
+            resultCard?.classList.remove('hidden');
+            if (navigator.vibrate) navigator.vibrate(40);
             launchConfetti();
-            urlInput.value = '';
-            if (platformHint) platformHint.textContent = '';
         } else {
             finishProgress(false);
-            showError(data.error || 'Erreur lors du téléchargement');
+            showError(data.error || 'Erreur lors de l\'extraction du média.');
         }
-    } catch {
+    } catch (err) {
         finishProgress(false);
-        showError('Impossible de contacter le serveur. Vérifie ta connexion.');
+        showError('Impossible de contacter le serveur. Vérifie ta connexion ou réessaie.');
     } finally {
-        submitBtn.querySelector('.btn-text').textContent = '⬇️ Obtenir le média';
-        submitBtn.querySelector('.btn-text').classList.remove('hidden');
-        submitBtn.querySelector('.loader').classList.add('hidden');
+        btnText?.classList.remove('hidden');
+        loader?.classList.add('hidden');
         submitBtn.disabled = false;
     }
 });
 
+// Feedback au clic de téléchargement
+downloadLink?.addEventListener('click', () => {
+    if (downloadBtnText) {
+        const original = downloadBtnText.textContent;
+        downloadBtnText.textContent = '⚡ Téléchargement démarré !';
+        if (navigator.vibrate) navigator.vibrate(30);
+        setTimeout(() => {
+            downloadBtnText.textContent = original;
+        }, 3000);
+    }
+});
+
+// Bouton copier le lien direct
+copyLinkBtn?.addEventListener('click', async () => {
+    if (!currentDownloadUrl) return;
+    try {
+        await navigator.clipboard.writeText(currentDownloadUrl);
+        copyLinkBtn.textContent = '✅ Lien copié !';
+        setTimeout(() => {
+            copyLinkBtn.textContent = '📋 Copier le lien';
+        }, 2000);
+    } catch {
+        showError('Impossible d\'accéder au presse-papier.');
+    }
+});
+
+// Affichage des erreurs
 function showError(msg) {
-    if (navigator.vibrate) navigator.vibrate([100, 50, 100]); // Haptic Error
-    errorMsg.textContent = '⚠️ ' + msg;
-    errorMsg.classList.remove('hidden');
+    if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+    if (errorMsg) {
+        errorMsg.textContent = '⚠️ ' + msg;
+        errorMsg.classList.remove('hidden');
+    }
 }
 
-downloadLink.addEventListener('click', async function (e) {
-    e.preventDefault();
-    const originalText = this.textContent;
-    this.textContent = '⏳ Préparation…';
-    this.style.pointerEvents = 'none';
-    const url = this.href;
-
-    const proxyUrl = '/api/proxy?url=' + encodeURIComponent(url);
-
-    // Essai 1 — Proxy serveur (rapide, pas de CORS)
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000);
-        const res = await fetch(proxyUrl, { signal: controller.signal });
-        clearTimeout(timeoutId);
-
-        if (!res.ok) throw new Error('Proxy error');
-        const blob = await res.blob();
-        const blobUrl = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        let ext = '.mp4';
-        if (originalText.includes('Audio') || originalText.includes('audio')) ext = '.mp3';
-        if (originalText.includes('Image') || originalText.includes('image')) ext = '.jpg';
-        a.download = (videoTitle.textContent || 'media').replace(/[/\\?%*:|"<>]/g, '-') + ext;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(blobUrl);
-        this.textContent = '✅ Téléchargé !';
-        setTimeout(() => { this.textContent = originalText; this.style.pointerEvents = ''; }, 2500);
-        return;
-    } catch (err) {
-        // ignore, try fallback
-    }
-
-    // Fallback — ouvrir directement le lien d'origine
-    window.open(url, '_blank');
-    this.textContent = originalText;
-    this.style.pointerEvents = '';
-});
-
-// ── Fonctionnalité 1 : Share Target (Venant d'une autre application) ──
-window.addEventListener('DOMContentLoaded', () => {
-    const params = new URLSearchParams(window.location.search);
-    const sharedUrl = params.get('url') || params.get('text');
-
-    if (sharedUrl && /https?:\/\//.test(sharedUrl)) {
-        // Extraire l'URL si elle est noyée dans du texte
-        const urlMatch = sharedUrl.match(/(https?:\/\/[^\s]+)/);
-        if (urlMatch) {
-            urlInput.value = urlMatch[0];
-            urlInput.dispatchEvent(new Event('input'));
-            // Lancer le téléchargement automatiquement !
-            setTimeout(() => form.dispatchEvent(new Event('submit')), 500);
-        }
-    }
-});
-
-// ── Fonctionnalité 3 : Collage Automatique (Auto-Paste) au retour sur l'app ──
-document.addEventListener('visibilitychange', async () => {
-    if (document.visibilityState === 'visible' && !urlInput.value) {
-        try {
-            const text = await navigator.clipboard.readText();
-            if (/https?:\/\/[^\s]+/.test(text)) {
-                urlInput.value = text;
-                urlInput.dispatchEvent(new Event('input'));
-            }
-        } catch (e) {
-            // Ignorer silencieusement si le navigateur bloque l'accès automatique
-        }
-    }
-});
-
-// ── Historique des téléchargements (Local Storage) ───────────
+// ── Historique des téléchargements (LocalStorage) ────────────────────
 function saveHistory(data, originalUrl) {
     if (!data.thumbnail) return;
     let history = JSON.parse(localStorage.getItem('menmaHistory') || '[]');
-    // Retirer si existe déjà pour le remettre au début
     history = history.filter(h => h.originalUrl !== originalUrl);
     history.unshift({
         title: data.title || 'Média',
         thumbnail: data.thumbnail,
-        platform: data.platform,
+        platform: data.platform || 'Média',
         originalUrl: originalUrl
     });
-    // Conserver max 8 éléments
     history = history.slice(0, 8);
     localStorage.setItem('menmaHistory', JSON.stringify(history));
     renderHistory();
@@ -377,7 +395,6 @@ function renderHistory() {
     if (!historyWrap || !historyGallery) return;
 
     const history = JSON.parse(localStorage.getItem('menmaHistory') || '[]');
-
     if (history.length === 0) {
         historyWrap.classList.add('hidden');
         return;
@@ -387,68 +404,145 @@ function renderHistory() {
     historyGallery.innerHTML = '';
 
     history.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'history-item';
-        div.setAttribute('role', 'button');
-        div.setAttribute('tabindex', '0');
-        div.setAttribute('aria-label', `Recharger ${item.title || 'Média'} (${item.platform || 'Média'})`);
+        const card = document.createElement('div');
+        card.className = 'history-item';
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('aria-label', `Recharger ${item.title} (${item.platform})`);
 
         const handleSelect = () => {
             urlInput.value = item.originalUrl;
             urlInput.dispatchEvent(new Event('input'));
-            form.dispatchEvent(new Event('submit'));
+            form?.dispatchEvent(new Event('submit'));
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        div.onclick = handleSelect;
-        div.addEventListener('keydown', (e) => {
+        card.onclick = handleSelect;
+        card.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 handleSelect();
             }
         });
 
-        let platformIcon = '🌐';
-        for (const [key, label] of Object.entries(PLATFORM_ICONS)) {
-            if (label.includes(item.platform)) {
-                platformIcon = label.split(' ')[0];
-                break;
-            }
-        }
+        const platformInfo = detectPlatformFromUrl(item.originalUrl) || { icon: '🌐' };
 
-        const altText = `Aperçu de ${item.title || 'média'} (${item.platform || 'Média'})`;
-
-        div.innerHTML = `
-            <div class="history-platform">${platformIcon}</div>
-            <img class="history-thumb" src="${item.thumbnail}">
-            <div class="history-title"></div>
+        card.innerHTML = `
+            <div class="history-platform">${platformInfo.icon}</div>
+            <img class="history-thumb" src="${item.thumbnail}" alt="Aperçu de ${item.title}">
+            <div class="history-title">${item.title}</div>
         `;
-        const img = div.querySelector('.history-thumb');
-        if (img) img.alt = altText;
-        const titleEl = div.querySelector('.history-title');
-        if (titleEl) titleEl.textContent = item.title || '';
 
-        historyGallery.appendChild(div);
+        historyGallery.appendChild(card);
     });
 }
 
-document.addEventListener('DOMContentLoaded', renderHistory);
+document.getElementById('clearHistoryBtn')?.addEventListener('click', () => {
+    localStorage.removeItem('menmaHistory');
+    renderHistory();
+});
 
-// ── Thème Clair / Sombre ──────────────────────────────────────
+// ── Thème Clair / Sombre ─────────────────────────────────────────────
 const themeToggle = document.getElementById('themeToggle');
 const savedTheme = localStorage.getItem('menmaTheme');
 if (savedTheme === 'light') {
     document.body.classList.add('light-mode');
-    themeToggle.textContent = '🌙';
+    if (themeToggle) themeToggle.textContent = '🌙';
 }
+
 themeToggle?.addEventListener('click', () => {
     const isLight = document.body.classList.toggle('light-mode');
-    themeToggle.textContent = isLight ? '🌙' : '☀️';
+    if (themeToggle) themeToggle.textContent = isLight ? '🌙' : '☀️';
     localStorage.setItem('menmaTheme', isLight ? 'light' : 'dark');
-    if (navigator.vibrate) navigator.vibrate(30);
+    if (navigator.vibrate) navigator.vibrate(25);
 });
 
-// ── Confettis ─────────────────────────────────────────────────
+// ── Compteur de téléchargements ──────────────────────────────────────
+function getCount() {
+    return parseInt(localStorage.getItem('menmaCount') || '0', 10);
+}
+function incrementCount() {
+    const c = getCount() + 1;
+    localStorage.setItem('menmaCount', c);
+    updateCountDisplay(c);
+}
+function updateCountDisplay(c) {
+    const el = document.getElementById('dlCount');
+    if (el) el.textContent = c.toLocaleString('fr-FR');
+}
+
+// ── Bannière presse-papier intelligente ──────────────────────────────
+let bannerUrl = '';
+const clipboardBanner = document.getElementById('clipboardBanner');
+const clipboardBannerText = document.getElementById('clipboardBannerText');
+const clipboardBannerBtn = document.getElementById('clipboardBannerBtn');
+const clipboardBannerClose = document.getElementById('clipboardBannerClose');
+
+async function checkClipboardForUrl() {
+    if (urlInput && urlInput.value.trim()) return;
+    try {
+        const text = await navigator.clipboard.readText();
+        if (!text) return;
+        const match = text.match(/(https?:\/\/[^\s]+)/);
+        if (!match) return;
+        const url = match[0];
+
+        const detected = detectPlatformFromUrl(url);
+        if (!detected) return;
+
+        bannerUrl = url;
+        if (clipboardBannerText) {
+            clipboardBannerText.textContent = `${detected.icon} ${detected.name} détecté`;
+        }
+        clipboardBanner?.classList.remove('hidden');
+        setTimeout(() => clipboardBanner?.classList.add('visible'), 20);
+
+        setTimeout(() => hideBanner(), 8000);
+    } catch {}
+}
+
+function hideBanner() {
+    clipboardBanner?.classList.remove('visible');
+    setTimeout(() => clipboardBanner?.classList.add('hidden'), 300);
+}
+
+clipboardBannerBtn?.addEventListener('click', () => {
+    if (bannerUrl && urlInput && form) {
+        urlInput.value = bannerUrl;
+        urlInput.dispatchEvent(new Event('input'));
+        form.dispatchEvent(new Event('submit'));
+        hideBanner();
+    }
+});
+clipboardBannerClose?.addEventListener('click', hideBanner);
+
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') checkClipboardForUrl();
+});
+
+// ── Bouton Partager ──────────────────────────────────────────────────
+document.getElementById('shareAppBtn')?.addEventListener('click', async () => {
+    const shareData = {
+        title: 'OmniDL — Téléchargeur Média Universel',
+        text: 'Télécharge tes vidéos TikTok, YouTube, Instagram en haute qualité en 1 clic 🔥',
+        url: window.location.origin
+    };
+    try {
+        if (navigator.share) {
+            await navigator.share(shareData);
+        } else {
+            await navigator.clipboard.writeText(shareData.url);
+            const btn = document.getElementById('shareAppBtn');
+            if (btn) {
+                btn.textContent = '✅';
+                setTimeout(() => { btn.textContent = '🔗'; }, 2000);
+            }
+        }
+    } catch {}
+    if (navigator.vibrate) navigator.vibrate(25);
+});
+
+// ── Effet Confettis ──────────────────────────────────────────────────
 function launchConfetti() {
     const canvas = document.getElementById('confettiCanvas');
     if (!canvas) return;
@@ -456,16 +550,16 @@ function launchConfetti() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const colors = ['#6366f1', '#f43f5e', '#10b981', '#f59e0b', '#3b82f6', '#a855f7'];
-    const particles = Array.from({ length: 90 }, () => ({
+    const colors = ['#4f46e5', '#e11d48', '#10b981', '#f59e0b', '#3b82f6'];
+    const particles = Array.from({ length: 70 }, () => ({
         x: Math.random() * canvas.width,
         y: -10,
-        r: Math.random() * 7 + 4,
+        r: Math.random() * 6 + 4,
         color: colors[Math.floor(Math.random() * colors.length)],
         speed: Math.random() * 3 + 2,
         drift: (Math.random() - 0.5) * 2,
         rotation: Math.random() * 360,
-        rotSpeed: (Math.random() - 0.5) * 6
+        rotSpeed: (Math.random() - 0.5) * 5
     }));
 
     let frame;
@@ -481,7 +575,7 @@ function launchConfetti() {
             ctx.translate(p.x, p.y);
             ctx.rotate((p.rotation * Math.PI) / 180);
             ctx.fillStyle = p.color;
-            ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 0.5);
+            ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 0.6);
             ctx.restore();
         });
         if (alive) frame = requestAnimationFrame(draw);
@@ -491,95 +585,21 @@ function launchConfetti() {
     draw();
 }
 
-// ── Feature 5: Compteur de téléchargements ───────────────────
-function getCount() { return parseInt(localStorage.getItem('menmaCount') || '0'); }
-function incrementCount() {
-    const c = getCount() + 1;
-    localStorage.setItem('menmaCount', c);
-    updateCountDisplay(c);
-}
-function updateCountDisplay(c) {
-    const el = document.getElementById('dlCount');
-    if (el) el.textContent = c.toLocaleString('fr-FR');
-}
-document.addEventListener('DOMContentLoaded', () => updateCountDisplay(getCount()));
+// ── Initialisation au chargement ─────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    updateCountDisplay(getCount());
+    renderHistory();
+    setTimeout(checkClipboardForUrl, 600);
 
-// ── Feature 2: Bannière presse-papier améliorée ──────────────
-let bannerUrl = '';
-const clipboardBanner = document.getElementById('clipboardBanner');
-const clipboardBannerText = document.getElementById('clipboardBannerText');
-const clipboardBannerBtn = document.getElementById('clipboardBannerBtn');
-const clipboardBannerClose = document.getElementById('clipboardBannerClose');
-
-async function checkClipboardForUrl() {
-    if (urlInput.value.trim()) return; // ne pas afficher si champ déjà rempli
-    try {
-        const text = await navigator.clipboard.readText();
-        const match = text.match(/(https?:\/\/[^\s]+)/);
-        if (!match) return;
-        const url = match[0];
-        // Vérifier que c'est un lien d'une plateforme supportée
-        const supported = ['tiktok.com', 'youtube.com', 'youtu.be', 'instagram.com', 'facebook.com', 'fb.watch', 'pinterest.com', 'pin.it', 'twitter.com', 'x.com', 'spotify.com', 'soundcloud.com'];
-        if (!supported.some(d => url.includes(d))) return;
-
-        // Detecter le nom de la plateforme
-        let platform = '🔗 Lien';
-        if (url.includes('tiktok')) platform = '🎵 TikTok';
-        else if (url.includes('youtube') || url.includes('youtu.be')) platform = '▶️ YouTube';
-        else if (url.includes('instagram')) platform = '📸 Instagram';
-        else if (url.includes('facebook') || url.includes('fb.watch')) platform = '👤 Facebook';
-        else if (url.includes('pinterest') || url.includes('pin.it')) platform = '📌 Pinterest';
-        else if (url.includes('twitter') || url.includes('x.com')) platform = '🐦 X';
-
-        bannerUrl = url;
-        clipboardBannerText.textContent = `${platform} détecté`;
-        clipboardBanner.classList.remove('hidden');
-        setTimeout(() => clipboardBanner.classList.add('visible'), 10);
-
-        // Auto-hide après 8s
-        setTimeout(() => hideBanner(), 8000);
-    } catch { }
-}
-
-function hideBanner() {
-    clipboardBanner.classList.remove('visible');
-    setTimeout(() => clipboardBanner.classList.add('hidden'), 400);
-}
-
-clipboardBannerBtn?.addEventListener('click', () => {
-    if (bannerUrl) {
-        urlInput.value = bannerUrl;
-        urlInput.dispatchEvent(new Event('input'));
-        form.dispatchEvent(new Event('submit'));
-        hideBanner();
-    }
-});
-clipboardBannerClose?.addEventListener('click', hideBanner);
-
-// Vérifier au focus de la page (revient depuis une autre app)
-document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') checkClipboardForUrl();
-});
-// Vérifier au chargement
-document.addEventListener('DOMContentLoaded', () => setTimeout(checkClipboardForUrl, 500));
-
-// ── Feature 1: Bouton Partager l'appli ───────────────────────
-document.getElementById('shareAppBtn')?.addEventListener('click', async () => {
-    const title = document.getElementById('videoTitle')?.textContent || '';
-    const shareData = {
-        title: 'MENMA DLX',
-        text: `Télécharge tes vidéos TikTok, YouTube, Instagram en 1 clic 🔥`,
-        url: 'https://menma-dlx.vercel.app'
-    };
-    try {
-        if (navigator.share) {
-            await navigator.share(shareData);
-        } else {
-            await navigator.clipboard.writeText(shareData.url);
-            const btn = document.getElementById('shareAppBtn');
-            btn.textContent = '✅';
-            setTimeout(() => btn.textContent = '🔗', 2000);
+    // Support Share Target URL
+    const params = new URLSearchParams(window.location.search);
+    const sharedUrl = params.get('url') || params.get('text');
+    if (sharedUrl && /https?:\/\//.test(sharedUrl)) {
+        const urlMatch = sharedUrl.match(/(https?:\/\/[^\s]+)/);
+        if (urlMatch && urlInput && form) {
+            urlInput.value = urlMatch[0];
+            urlInput.dispatchEvent(new Event('input'));
+            setTimeout(() => form.dispatchEvent(new Event('submit')), 300);
         }
-    } catch { }
-    if (navigator.vibrate) navigator.vibrate(30);
+    }
 });

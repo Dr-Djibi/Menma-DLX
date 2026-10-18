@@ -4,96 +4,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OmniDL</title>
-    <meta name="description" content="Téléchargeur vidéo universel — TikTok, YouTube, Instagram, Facebook, Pinterest">
+    <title>OmniDL — Téléchargeur Média Universel</title>
+    <meta name="description" content="Téléchargeur média universel haute qualité — TikTok, YouTube, Instagram, Facebook, Pinterest, Twitter/X">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0d1117">
+    <meta name="theme-color" content="#0b0f19">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
+    <div class="ambient-glow glow-top" aria-hidden="true"></div>
+    <div class="ambient-glow glow-bottom" aria-hidden="true"></div>
 
-    <!-- Bannière presse-papier (Feature 2) -->
-    <div class="clipboard-banner hidden" id="clipboardBanner">
-        <span id="clipboardBannerText">🔗 Lien détecté</span>
-        <button id="clipboardBannerBtn">Télécharger →</button>
-        <button class="clipboard-banner-close" id="clipboardBannerClose" aria-label="Fermer la bannière">✕</button>
+    <!-- Bannière presse-papier automatique -->
+    <div class="clipboard-banner hidden" id="clipboardBanner" role="region" aria-label="Lien détecté dans le presse-papier">
+        <span class="clipboard-text" id="clipboardBannerText">🔗 Lien détecté</span>
+        <div class="clipboard-actions">
+            <button type="button" id="clipboardBannerBtn" class="clipboard-cta">Coller & Télécharger</button>
+            <button type="button" class="clipboard-banner-close" id="clipboardBannerClose" aria-label="Fermer la bannière">✕</button>
+        </div>
     </div>
 
-    <canvas id="confettiCanvas"></canvas>
+    <canvas id="confettiCanvas" aria-hidden="true"></canvas>
+
     <main class="container glass">
         <header>
             <div class="header-row">
-                <h1 class="logo">Omni<span>DL</span></h1>
+                <h1 class="logo">Omni<span class="logo-accent">DL</span></h1>
                 <div class="header-actions">
-                    <button class="share-btn" id="shareAppBtn" title="Partager l'appli" aria-label="Partager l'application">🔗</button>
-                    <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème">☀️</button>
+                    <button type="button" class="header-icon-btn" id="shareAppBtn" title="Partager l'application" aria-label="Partager l'application">🔗</button>
+                    <button type="button" class="header-icon-btn" id="themeToggle" title="Changer le thème" aria-label="Basculer entre mode sombre et clair">☀️</button>
                 </div>
             </div>
-            <p class="subtitle">TikTok · YouTube · Instagram · Facebook · Pinterest</p>
-            <!-- Compteur (Feature 5) -->
-            <div class="dl-counter" id="dlCounter">🔥 <span id="dlCount">0</span> vidéos téléchargées</div>
+            <p class="subtitle">TikTok · YouTube · Instagram · Facebook · Pinterest · X</p>
+            <div class="dl-counter" id="dlCounter" aria-label="Statistiques de téléchargements">
+                <span class="counter-badge">🔥 <span id="dlCount">0</span> téléchargements</span>
+            </div>
         </header>
 
         <form id="downloadForm">
             <div class="input-wrap">
-                <input type="url" id="urlInput" placeholder="Colle le lien de la vidéo ici…" aria-label="URL de la vidéo" autocomplete="off"
-                    autocorrect="off" spellcheck="false" required>
-                <button type="button" id="clearBtn" class="clear-btn hidden" title="Effacer le texte" aria-label="Effacer le lien">✕</button>
-                <button type="button" id="pasteBtn" title="Coller depuis le presse-papier" aria-label="Coller le lien depuis le presse-papier">📋</button>
+                <input type="url" id="urlInput" placeholder="Colle le lien de la vidéo ou audio…" aria-label="URL du média à télécharger" autocomplete="off" autocorrect="off" spellcheck="false" required>
+                <div class="input-actions">
+                    <button type="button" id="clearBtn" class="icon-control-btn hidden" title="Effacer le champ" aria-label="Effacer le lien">✕</button>
+                    <button type="button" id="pasteBtn" class="icon-control-btn" title="Coller depuis le presse-papier" aria-label="Coller le lien depuis le presse-papier">📋</button>
+                </div>
             </div>
+            
             <div id="platformHint" class="platform-hint" aria-live="polite"></div>
 
-            <div class="format-toggle">
-                <span class="toggle-label" id="labelVideo">🎬 Vidéo</span>
-                <label class="switch">
-                    <input type="checkbox" id="formatToggle" aria-label="Format : Vidéo">
-                    <span class="slider round"></span>
-                </label>
-                <span class="toggle-label" id="labelAudio">🎵 Audio</span>
+            <!-- Sélecteur de format segmenté -->
+            <div class="segmented-control" role="radiogroup" aria-label="Format du média">
+                <button type="button" class="segmented-btn active" id="btnFormatVideo" role="radio" aria-checked="true">
+                    🎬 Vidéo
+                </button>
+                <button type="button" class="segmented-btn" id="btnFormatAudio" role="radio" aria-checked="false">
+                    🎵 Audio
+                </button>
+                <input type="checkbox" id="formatToggle" class="hidden" aria-hidden="true">
             </div>
 
-            <button type="submit" id="submitBtn">
+            <!-- Sélecteur de qualité (affiché pour YouTube / options) -->
+            <div class="quality-wrap" id="qualityWrap">
+                <div class="quality-group" id="qualityVideo">
+                    <button type="button" class="quality-btn active" data-q="hd">1080p / HD</button>
+                    <button type="button" class="quality-btn" data-q="sd">720p / SD</button>
+                    <button type="button" class="quality-btn" data-q="360p">360p</button>
+                </div>
+                <div class="quality-group hidden" id="qualityAudio">
+                    <button type="button" class="quality-btn active" data-q="320k">320 kbps</button>
+                    <button type="button" class="quality-btn" data-q="192k">192 kbps</button>
+                    <button type="button" class="quality-btn" data-q="128k">128 kbps</button>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="primary-btn">
                 <span class="btn-text">⬇️ Obtenir le média</span>
-                <span class="loader hidden"></span>
+                <span class="loader hidden" aria-hidden="true"></span>
             </button>
 
             <!-- Barre de progression -->
             <div class="progress-wrap hidden" id="progressWrap" aria-live="polite">
                 <div class="progress-bar" id="progressBar"></div>
-                <span class="progress-label" id="progressLabel">Connexion…</span>
+                <span class="progress-label" id="progressLabel">Connexion au serveur…</span>
             </div>
         </form>
 
-        <!-- Résultat -->
-        <div id="resultCard" class="result-card hidden">
-            <div class="platform-badge" id="platformBadge"></div>
-            <p id="videoTitle"></p>
-            <img id="thumbImg" class="thumb hidden" alt="Aperçu">
+        <!-- Carte de résultat -->
+        <div id="resultCard" class="result-card hidden" aria-live="polite">
+            <div class="result-header">
+                <div class="platform-badge" id="platformBadge"></div>
+                <span class="media-type-tag" id="mediaTypeTag">MP4</span>
+            </div>
+            
+            <p id="videoTitle" class="video-title"></p>
+            
+            <div id="thumbWrap" class="thumb-wrap hidden"></div>
 
-            <a id="downloadLink" href="#" class="download-btn" download>💾 Télécharger</a>
-            <div id="allMediaList" class="media-list"></div>
+            <!-- Actions principales -->
+            <div class="action-buttons">
+                <a id="downloadLink" href="#" class="download-btn" download>
+                    <span class="download-icon">💾</span>
+                    <span id="downloadBtnText">Télécharger le fichier</span>
+                </a>
+                
+                <div class="secondary-actions">
+                    <a id="previewLink" href="#" class="secondary-btn" target="_blank" rel="noopener noreferrer" title="Ouvrir dans un nouvel onglet">
+                        👁️ Ouvrir le flux
+                    </a>
+                    <button type="button" id="copyLinkBtn" class="secondary-btn" title="Copier le lien direct">
+                        📋 Copier le lien
+                    </button>
+                </div>
+            </div>
+
+            <!-- Carrousel / Multi-médias (Instagram/TikTok/Pinterest) -->
+            <div id="allMediaContainer" class="all-media-container hidden">
+                <span class="all-media-heading">Médiathèque du post :</span>
+                <div id="allMediaList" class="media-grid"></div>
+            </div>
         </div>
 
         <div id="errorMsg" class="error-msg hidden" role="alert" aria-live="assertive"></div>
 
-        <!-- Historique -->
-        <div class="history-wrap hidden" id="historyWrap">
-            <h3><span class="icon">🕒</span> Récents</h3>
+        <!-- Historique des téléchargements -->
+        <section class="history-section hidden" id="historyWrap">
+            <div class="history-header">
+                <h2 class="section-title">🕒 Récents</h2>
+                <button type="button" id="clearHistoryBtn" class="clear-history-btn" title="Vider l'historique" aria-label="Vider l'historique">Vider</button>
+            </div>
             <div class="history-gallery" id="historyGallery"></div>
-        </div>
+        </section>
 
         <footer>
-            <p>Propulsé par <span style="color: var(--accent); font-weight: 600;">Dr Djibi</span> · <span
-                    id="year"></span></p>
+            <p>Conçu avec précision · <span class="author-tag">Dr Djibi</span> · <span id="year"></span></p>
         </footer>
     </main>
 
