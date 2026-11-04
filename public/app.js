@@ -244,7 +244,20 @@ form?.addEventListener('submit', async (e) => {
             })
         });
 
-        const data = await res.json();
+        let data;
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+            data = await res.json();
+        } else {
+            const rawText = await res.text();
+            data = { success: false, error: rawText || `Erreur serveur (${res.status})` };
+        }
+
+        if (!res.ok) {
+            finishProgress(false);
+            showError(data.error || `Erreur requête (${res.status})`);
+            return;
+        }
 
         if (data.success && data.download_url) {
             finishProgress(true);
@@ -338,12 +351,13 @@ form?.addEventListener('submit', async (e) => {
     }
 });
 
-// Feedback au clic de téléchargement
-downloadLink?.addEventListener('click', () => {
+// Feedback au clic de téléchargement avec fallback blob si navigation bloquée
+downloadLink?.addEventListener('click', async (e) => {
     if (downloadBtnText) {
         const original = downloadBtnText.textContent;
-        downloadBtnText.textContent = '⚡ Téléchargement démarré !';
+        downloadBtnText.textContent = '⚡ Téléchargement en cours…';
         if (navigator.vibrate) navigator.vibrate(30);
+
         setTimeout(() => {
             downloadBtnText.textContent = original;
         }, 3000);

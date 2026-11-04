@@ -1,10 +1,11 @@
 import axios from 'axios';
 
 export default async function handler(req, res) {
-    // CORS headers
+    // CORS headers complets pour clients Web & Mobile
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Range');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Range, Authorization, X-Requested-With');
+    res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition, Content-Length, Content-Range, Accept-Ranges, Content-Type');
 
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
@@ -30,22 +31,32 @@ export default async function handler(req, res) {
             referer = 'https://www.youtube.com/';
         }
 
+        // Préparation des en-têtes en amont (forwarding du Range pour les players mobiles et reprise)
+        const requestHeaders = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            'Accept': '*/*',
+            'Accept-Encoding': 'identity',
+            ...(referer ? { 'Referer': referer } : {})
+        };
+
+        if (req.headers.range) {
+            requestHeaders['Range'] = req.headers.range;
+        }
+
         const response = await axios({
-            method: 'GET',
+            method: req.method === 'HEAD' ? 'HEAD' : 'GET',
             url: url,
             responseType: 'stream',
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-                'Accept': '*/*',
-                'Accept-Encoding': 'identity',
-                ...(referer ? { 'Referer': referer } : {})
-            },
+            headers: requestHeaders,
             timeout: 30000,
-            maxRedirects: 5
+            maxRedirects: 5,
+            validateStatus: (status) => (status >= 200 && status < 300) || status === 206
         });
 
         const contentType = response.headers['content-type'] || 'application/octet-stream';
         const contentLength = response.headers['content-length'];
+        const contentRange = response.headers['content-range'];
+        const acceptRanges = response.headers['accept-ranges'] || 'bytes';
 
         // Format clean filename
         let safeName = (filename || 'media').trim().replace(/[/\\?%*:|"<>]/g, '-').replace(/\s+/g, '_');
@@ -57,12 +68,23 @@ export default async function handler(req, res) {
             else safeName += '.mp4';
         }
 
+        res.status(response.status);
         res.setHeader('Content-Type', contentType);
+        res.setHeader('Accept-Ranges', acceptRanges);
+
         if (contentLength) {
             res.setHeader('Content-Length', contentLength);
         }
+        if (contentRange) {
+            res.setHeader('Content-Range', contentRange);
+        }
+
         res.setHeader('Content-Disposition', `attachment; filename="${safeName}"; filename*=UTF-8''${encodeURIComponent(safeName)}`);
         res.setHeader('Cache-Control', 'public, max-age=3600');
+
+        if (req.method === 'HEAD') {
+            return res.end();
+        }
 
         response.data.pipe(res);
     } catch (err) {

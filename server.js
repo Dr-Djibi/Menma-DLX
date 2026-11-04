@@ -10,7 +10,14 @@ import proxyHandler from './api/proxy.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
-app.use(cors());
+
+// Configuration CORS globale
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'HEAD', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Range', 'Authorization', 'X-Requested-With', 'X-Tenant-Key', 'X-API-Key'],
+    exposedHeaders: ['Content-Disposition', 'Content-Length', 'Content-Range', 'Accept-Ranges', 'Content-Type']
+}));
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
@@ -18,11 +25,11 @@ const PORT = process.env.PORT || 3000;
 // ─────────────────────────────────────────────────────────────
 // Routes API
 // ─────────────────────────────────────────────────────────────
-app.post(['/api/download', '/download'], async (req, res) => {
+app.all(['/api/download', '/download'], async (req, res) => {
     return await apiHandler(req, res);
 });
 
-app.get('/api/proxy', async (req, res) => {
+app.all(['/api/proxy', '/proxy'], async (req, res) => {
     return await proxyHandler(req, res);
 });
 
@@ -37,9 +44,9 @@ app.get('/', (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────
-// Démarrage local uniquement (pas Vercel serverless)
+// Démarrage local uniquement (pas Vercel serverless ni environnement de test)
 // ─────────────────────────────────────────────────────────────
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
     app.listen(PORT, () => console.log(`✅ Serveur MENMA DLX sur http://localhost:${PORT}`));
 }
 
