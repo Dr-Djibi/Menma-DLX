@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "test": "NODE_ENV=test node --test test/api.test.js"
   },
   "dependencies": {
     "@distube/ytdl-core": "^4.16.12",

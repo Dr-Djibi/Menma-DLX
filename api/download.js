@@ -7,7 +7,7 @@ import { getInstagramData } from '../lib/extractors/instagram.js';
 import { getTwitterData } from '../lib/extractors/twitter.js';
 
 // Tenant Keys (multi-client : bot, site, app)
-const TENANT_KEYS = process.env.TENANT_KEYS
+const getTenantKeys = () => process.env.TENANT_KEYS
     ? process.env.TENANT_KEYS.split(',').map(k => k.trim()).filter(Boolean)
     : [];
 
@@ -38,7 +38,8 @@ export default async function handler(req, res) {
     // CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Tenant-Key, X-API-Key');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Range, Authorization, X-Requested-With, X-Tenant-Key, X-API-Key');
+    res.setHeader('Access-Control-Expose-Headers', 'Content-Type');
     res.setHeader('Cache-Control', 'no-store');
 
     if (req.method === 'OPTIONS') return res.status(200).end();
@@ -46,10 +47,11 @@ export default async function handler(req, res) {
         return res.status(405).json({ success: false, error: 'Méthode non autorisée', code: 'METHOD_NOT_ALLOWED' });
     }
 
-    // Auth multi-tenant
-    if (TENANT_KEYS.length > 0) {
+    // Auth multi-tenant (dynamique pour permettre modification d'env en runtime/tests)
+    const tenantKeys = getTenantKeys();
+    if (tenantKeys.length > 0) {
         const key = req.headers['x-tenant-key'] || req.headers['x-api-key'] || req.body?.tenant_key;
-        if (!key || !TENANT_KEYS.includes(key)) {
+        if (!key || !tenantKeys.includes(key)) {
             return res.status(401).json({ success: false, error: 'Clé API invalide ou manquante.', code: ERROR_CODES.AUTH_REQUIRED });
         }
     }
@@ -64,7 +66,7 @@ export default async function handler(req, res) {
     if (!platform) {
         return res.status(400).json({
             success: false,
-            error: 'Plateforme non supportée. Plateformes acceptées : YouTube, TikTok, Instagram, Facebook, Twitter/X, Pinterest, Spotify, SoundCloud, Reddit.',
+            error: 'Plateforme non supportée. Plateformes acceptées : YouTube, TikTok, Instagram, Facebook, Twitter/X.',
             code: ERROR_CODES.PLATFORM_UNSUPPORTED,
         });
     }
@@ -82,10 +84,6 @@ export default async function handler(req, res) {
                 case 'Instagram':  return await getInstagramData(url, format);
                 case 'Facebook':   return await getFacebookData(url, format);
                 case 'Twitter':    return await getTwitterData(url);
-                case 'Pinterest':  return await getPinterestData(url);
-                case 'Spotify':    return await getSpotifyData(url);
-                case 'SoundCloud': return await getSoundCloudData(url);
-                case 'Reddit':     return await getRedditData(url);
                 default:           throw new Error(`Plateforme inconnue : ${platform}`);
             }
         })();
